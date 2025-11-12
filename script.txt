@@ -1,8 +1,8 @@
 CREATE TABLE Produto (
 	cod_barras VARCHAR(13) PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
-	tipo produto VARCHAR(255) NOT NULL
-	preço venda DECIMAL(10, 2) NOT NULL
+	tipo_produto VARCHAR(255) NOT NULL
+	preço_venda DECIMAL(10, 2) NOT NULL
 );
 
 CREATE TABLE Fornecedor (
@@ -79,3 +79,4 @@ CREATE TABLE Fornecedor_Produto (
 
 ALTER TABLE Setor
     ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
+
