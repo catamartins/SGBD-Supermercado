@@ -1,8 +1,8 @@
 CREATE TABLE Produto (
 	cod_barras VARCHAR(13) PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
-	tipo_produto VARCHAR(255) NOT NULL
-	preço_venda DECIMAL(10, 2) NOT NULL
+	tipo_produto VARCHAR(255) NOT NULL,
+	preco_venda DECIMAL(10, 2) NOT NULL
 );
 
 CREATE TABLE Fornecedor (
@@ -14,6 +14,7 @@ CREATE TABLE Fornecedor (
 CREATE TABLE Lote(
 	cod_lote SERIAL NOT NULL,
 	quantidade INT NOT NULL,
+	cod_fornecedor INT NOT NULL,
 	FOREIGN KEY (cod_fornecedor) REFERENCES Fornecedor(cod_fornecedor)
 );
 
@@ -26,14 +27,14 @@ CREATE TABLE Setor(
 CREATE TABLE Venda(
 	cod_venda SERIAL PRIMARY KEY,
 	data_venda DATE NOT NULL,
-	FOREIGN KEY (cpf_funcionario) REFERENCES Funcionário(cpf),
+	--FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf),
 	valor_total DECIMAL (10, 2) NOT NULL,
 	forma_pagamento VARCHAR(20) NOT NULL,
 	qntd_parcelas INT,
 	valor_desconto DECIMAL (10, 2)
 );
 
-CREATE TABLE Funcionário(
+CREATE TABLE Funcionario(
 	cpf CHAR(11) PRIMARY KEY,
 	nome_completo VARCHAR(255) NOT NULL,
 	FOREIGN KEY (cod_setor) REFERENCES Setor(cod_setor),
@@ -79,4 +80,8 @@ CREATE TABLE Fornecedor_Produto (
 
 ALTER TABLE Setor
     ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
+
+ALTER TABLE Venda
+    ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf);
+
 
