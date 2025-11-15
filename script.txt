@@ -2,7 +2,8 @@ CREATE TABLE Produto (
 	cod_barras VARCHAR(13) PRIMARY KEY,
 	nome VARCHAR(255) NOT NULL,
 	tipo_produto VARCHAR(255) NOT NULL,
-	preco_venda DECIMAL(10, 2) NOT NULL
+	preco_venda DECIMAL(10, 2) NOT NULL,
+	estoque_minimo INT
 );
 
 CREATE TABLE Fornecedor (
@@ -12,9 +13,14 @@ CREATE TABLE Fornecedor (
 );
 
 CREATE TABLE Lote(
-	cod_lote SERIAL NOT NULL,
+	cod_lote SERIAL PRIMARY KEY,
 	quantidade INT NOT NULL,
 	cod_fornecedor INT NOT NULL,
+	cod_produto VARCHAR(13),
+	preco_compra DECIMAL(10, 2) NOT NULL,
+	data_recebimento DATE NOT NULL,
+	data_validade DATE NOT NULL,
+	FOREIGN KEY (cod_produto) REFERENCES Produto(cod_barras),
 	FOREIGN KEY (cod_fornecedor) REFERENCES Fornecedor(cod_fornecedor)
 );
 
@@ -37,30 +43,32 @@ CREATE TABLE Venda(
 CREATE TABLE Funcionario(
 	cpf CHAR(11) PRIMARY KEY,
 	nome_completo VARCHAR(255) NOT NULL,
-	FOREIGN KEY (cod_setor) REFERENCES Setor(cod_setor),
+	cod_setor INT NOT NULL,
+	cargo VARCHAR(50) NOT NULL,
 	genero VARCHAR(20),
 	endereco VARCHAR(255),
-	salario DECIMAL(10, 2) NOT NULL
+	salario DECIMAL(10, 2) NOT NULL,
+	FOREIGN KEY (cod_setor) REFERENCES Setor(cod_setor)
 );
 
-CREATE TABLE acougueiro (
+CREATE TABLE Acougueiro (
 	cpf CHAR(11) PRIMARY KEY REFERENCES funcionario(cpf),
 	certificacao VARCHAR(100),
 	epi_entregue BOOLEAN
 );
 
-CREATE TABLE padeiro (
+CREATE TABLE Padeiro (
 	cpf CHAR(11) PRIMARY KEY REFERENCES funcionario(cpf),
 	certificacao VARCHAR(100),
 	epi_entregue BOOLEAN
 );
 
-CREATE TABLE analista_financeiro (
+CREATE TABLE Analista_financeiro (
 	cpf CHAR(11) PRIMARY KEY REFERENCES funcionario(cpf),
 	certificacao VARCHAR(100)
 );
 
-CREATE TABLE operador (
+CREATE TABLE Operador (
 	cpf CHAR(11) PRIMARY KEY REFERENCES funcionario(cpf),
 	posto_pdv VARCHAR(50)
 );
@@ -72,16 +80,14 @@ CREATE TABLE Venda_Contem_Produto (
     PRIMARY KEY (cod_venda, cod_barras)
 );
 
-CREATE TABLE Fornecedor_Produto (
-    cod_fornecedor INT REFERENCES Fornecedor(cod_fornecedor),
-    cod_barras VARCHAR(13) REFERENCES Produto(cod_barras),
-    PRIMARY KEY (cod_fornecedor, cod_barras)
-);
-
 ALTER TABLE Setor
-    ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
+    ADD COLUMN cpf_gerente CHAR(11);
+ALTER TABLE Setor
+    ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
 
 ALTER TABLE Venda
-    ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf);
+    ADD COLUMN cpf_funcionario CHAR(11);
+ALTER TABLE Venda
+    ADD CONSTRAINT fk_funcionario_venda FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf);
 
 
