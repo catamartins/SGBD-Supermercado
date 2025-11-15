@@ -81,13 +81,14 @@ CREATE TABLE Venda_Contem_Produto (
 );
 
 ALTER TABLE Setor
-    ADD COLUMN cpf_gerente CHAR(11);
+	ADD COLUMN cpf_gerente CHAR(11);
 ALTER TABLE Setor
-    ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
+	ADD CONSTRAINT fk_gerente FOREIGN KEY (cpf_gerente) REFERENCES Funcionario(cpf);
 
 ALTER TABLE Venda
-    ADD COLUMN cpf_funcionario CHAR(11);
+	ADD COLUMN cpf_funcionario CHAR(11);
 ALTER TABLE Venda
-    ADD CONSTRAINT fk_funcionario_venda FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf);
+	ADD CONSTRAINT fk_funcionario_venda FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf);
+
 
 
