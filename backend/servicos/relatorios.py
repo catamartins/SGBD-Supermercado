@@ -55,7 +55,6 @@ class RelatoriosDatabase:
             ORDER BY
                 nome_produto ASC;
         """
-        # Repetimos os parâmetros (ano, mes) para as duas consultas WHERE
         params = (ano, mes, ano, mes)
         
         # Usamos execute_select_all porque retorna várias linhas (uma por produto)
@@ -66,17 +65,10 @@ class RelatoriosDatabase:
         Gera um relatório unificado de entrada e saída.
         Se cod_barras for None, retorna a movimentação de TODOS os produtos.
         """
-        # Se for um relatório geral, não precisamos do UNION ALL, 
-        # mas sim de uma cláusula WHERE dinâmica.
-        
-        # A complexidade de ter um UNION ALL e um LEFT JOIN para nome do produto
-        # torna mais simples manter a query com UNION ALL e usar a cláusula WHERE.
-        
-        # 1. Monta a condição WHERE
+
         where_clause = "WHERE l.cod_produto = %s" if cod_barras else ""
         where_clause_venda = "WHERE vcp.cod_barras = %s" if cod_barras else ""
-        
-        # 2. Monta os parâmetros
+
         params = (cod_barras, cod_barras) if cod_barras else ()
 
         query = f"""
@@ -117,3 +109,56 @@ class RelatoriosDatabase:
         """
         # Usamos self.db.execute_select_all para consultas dinâmicas (f-string) e injetamos os parâmetros separadamente
         return self.db.execute_select_all(query, params)
+    
+    def get_historico_precos_fornecedor(self, cod_barras):
+        """
+        Consulta o histórico de preços de compra de um produto específico
+        nos últimos 3 meses, discriminado por lote e fornecedor.
+        """
+        query = """
+            SELECT 
+                p.nome AS produto_nome,
+                f.nome_fornecedor,
+                l.cod_lote,
+                l.preco_compra,
+                l.data_recebimento
+            FROM 
+                Lote l
+            JOIN 
+                Fornecedor f ON l.cod_fornecedor = f.cod_fornecedor
+            JOIN
+                Produto p ON l.cod_produto = p.cod_barras
+            WHERE 
+                l.cod_produto = %s
+                AND l.data_recebimento >= current_date - interval '3 months'
+            ORDER BY 
+                l.data_recebimento DESC;
+        """
+        # Usamos execute_select_all porque pode haver vários lotes
+        return self.db.execute_select_all(query, (cod_barras,))
+    
+    def get_balanco_financeiro_mensal(self, ano: int, mes: int):
+        """
+        Calcula o Lucro Bruto (Receita - CMV) de todas as vendas em um mês.
+        NOTA: Para simplificar, esta consulta usa o PREÇO DE COMPRA DO LOTE MAIS RECENTE
+        para calcular o CMV, o que é uma aproximação.
+        """
+        query = """
+            SELECT 
+                COALESCE(SUM(v.valor_total), 0) AS receita_total,
+                COALESCE(SUM(vcp.quantidade * l.preco_compra), 0) AS custo_mercadoria_vendida,
+                (COALESCE(SUM(v.valor_total), 0) - COALESCE(SUM(vcp.quantidade * l.preco_compra), 0)) AS lucro_bruto
+            FROM 
+                Venda v
+            JOIN 
+                Venda_Contem_Produto vcp ON v.cod_venda = vcp.cod_venda
+            JOIN 
+                Lote l ON vcp.cod_barras = l.cod_produto
+            WHERE 
+                EXTRACT(YEAR FROM v.data_venda) = %s 
+                AND EXTRACT(MONTH FROM v.data_venda) = %s;
+        """
+        params = (ano, mes)
+        
+        # Usamos execute_select_one pois o resultado é uma única linha de resumo
+        return self.db.execute_select_one(query, params)
