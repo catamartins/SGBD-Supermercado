@@ -2,7 +2,7 @@ from database.conector import DatabaseManager
 
 class ProdutoDatabase:
 
-    def __init__(self, db_provider: DatabaseManager | None = None) -> None:
+    def __init__(self, db_provider = None):
         # Avoid creating a DB connection at import time by lazy-initializing
         self.db = db_provider or DatabaseManager()
 
