@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="conteudo-pagina">
+    <h1 class="titulo-pagina">Gestão de Estoque</h1>
+
+    <!-- ÁREA DE CADASTRO RÁPIDO -->
+    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+        
+        <!-- Cadastrar Lote -->
+        <section class="card-longo" style="flex: 2;">
+            <h3>📥 Entrada de Lote (Compra)</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px">
+                <input id="lote-prod" placeholder="Cód. Barras Produto" />
+                <input id="lote-forn" placeholder="ID Fornecedor" type="number" />
+                <input id="lote-qtd" placeholder="Quantidade" type="number" />
+                <input id="lote-preco" placeholder="Preço Compra (Un)" type="number" step="0.01" />
+                <input id="lote-data" type="date" title="Data Recebimento" />
+                <input id="lote-val" type="date" title="Data Validade" />
+            </div>
+            <button class="btn" onclick="cadastrarLote()" style="width:100%">Registrar Entrada</button>
+        </section>
+
+        <!-- Cadastrar Fornecedor -->
+        <section class="card-longo" style="flex: 1;">
+            <h3>🚚 Novo Fornecedor</h3>
+            <input id="forn-nome" placeholder="Nome da Empresa" style="margin-bottom:10px" />
+            <input id="forn-data" type="date" title="Data Contratação" style="margin-bottom:10px" />
+            <button class="btn" onclick="cadastrarFornecedor()" style="width:100%">Salvar Fornecedor</button>
+        </section>
+    </div>
+
+    <!-- LISTAGEM -->
+    <section class="card-longo">
+        <h3>📦 Estoque Atual (Lotes)</h3>
+        <table class="tabela">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Produto</th>
+                    <th>Fornecedor</th>
+                    <th>Qtd</th>
+                    <th>Validade</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="estoque-body">
+                <!-- JS preenche aqui -->
+            </tbody>
+        </table>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/estoque.js') }}"></script>
+{% endblock %}

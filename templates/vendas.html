@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- O conteúdo principal da sua página entra aqui -->
+  <section class="conteudo-pagina">
+
+    <h1 class="titulo-pagina">Registrar Venda</h1>
+
+    <section class="scanner">
+      <h3 style="margin:0 0 10px">Scanner de Código de Barras</h3>
+      <div style="display:flex;gap:12px;align-items:center">
+        <!-- Adicionei o id="codigo-input" para facilitar o JS, se precisar -->
+        <input id="barcode" placeholder="Digite ou escaneie o código de barras" />
+        <!-- Certifique-se que a função addProduct() existe no seu arquivo JS -->
+        <button class="btn" onclick="addProduct()">Adicionar</button>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:13px">Códigos de teste: 7891234567890 a 7891234567894</div>
+    </section>
+
+    <section class="sale-list" id="saleList">
+      <div class="empty">Nenhum produto adicionado</div>
+    </section>
+    
+    <!-- Dica: Adicione aqui uma área para mostrar o TOTAL e o botão FINALIZAR -->
+    <div style="margin-top: 20px; text-align: right; font-size: 1.5em; font-weight: bold;">
+        Total: <span id="total-venda">R$ 0,00</span>
+        <button class="btn" style="background-color: #28a745; margin-left: 15px;" onclick="finalizarVenda()">Finalizar (F9)</button>
+    </div>
+
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <!-- Importa o JS específico desta página -->
+  <script src="{{ url_for('static', filename='js/vendas.js') }}"></script>
+{% endblock %}
