@@ -1,105 +1,71 @@
 from flask import Flask, Blueprint, request, jsonify
 from servicos.relatorios import RelatoriosDatabase
-
-app = Flask(__name__)
+import datetime
 
 relatorios_bp = Blueprint('relatorios', __name__)
 
+# --- ROTAS DE LEITURA ---
 @relatorios_bp.route('/relatorios/resumo_mensal_por_produto', methods=['GET'])
 def get_resumo_mensal_por_produto():
-    import datetime
     hoje = datetime.date.today()
+    ano = int(request.args.get('ano', str(hoje.year)))
+    mes = int(request.args.get('mes', str(hoje.month)))
     
-    ano_str = request.args.get('ano', str(hoje.year))
-    mes_str = request.args.get('mes', str(hoje.month))
-    
-    try:
-        ano = int(ano_str)
-        mes = int(mes_str)
-        if mes < 1 or mes > 12:
-             return jsonify({"erro": "Mês inválido (deve ser entre 1 e 12)."}), 400
-    except ValueError:
-        return jsonify({"erro": "O ano e o mês devem ser números inteiros válidos."}), 400
-    
-    relatorios_db = RelatoriosDatabase()
-    
-    resumo_produtos = relatorios_db.get_resumo_mensal_por_produto(ano, mes)
-
-    if resumo_produtos:
-        return jsonify({
-            "mes": mes,
-            "ano": ano,
-            "resumo": resumo_produtos # Retorna a lista de resumos por produto
-        }), 200
-    else:
-        return jsonify({"mensagem": f"Nenhuma movimentação de produto encontrada em {mes}/{ano}."}), 200
+    resumo = RelatoriosDatabase().get_resumo_mensal_por_produto(ano, mes)
+    return jsonify({"mes": mes, "ano": ano, "resumo": resumo}) if resumo else jsonify({"mensagem": "Sem dados."})
 
 @relatorios_bp.route('/relatorios/movimentacao', methods=['GET'])
 def get_relatorio_movimentacao():
-    # O código é opcional. Se não for fornecido, será None.
     codigo = request.args.get('codigo')
-    
-    relatorios_db = RelatoriosDatabase()
-    
-    # Chama o método passando None ou o código
-    relatorio = relatorios_db.get_relatorio_movimentacao(codigo)
+    relatorio = RelatoriosDatabase().get_relatorio_movimentacao(codigo)
+    return jsonify({"movimentacoes": relatorio}) if relatorio else jsonify({"mensagem": "Sem dados."})
 
-    if relatorio:
-        return jsonify({
-            "titulo": "Movimentação Geral" if not codigo else f"Movimentação Produto {codigo}",
-            "movimentacoes": relatorio
-        }), 200
-    else:
-        mensagem = "Nenhuma movimentação encontrada."
-        return jsonify({"mensagem": mensagem}), 200
-    
 @relatorios_bp.route('/relatorios/historico_precos', methods=['GET'])
 def get_historico_precos():
     codigo = request.args.get('codigo')
-    
-    if not codigo:
-        return jsonify({"erro": "O código do produto é obrigatório para o histórico de preços."}), 400
-    
-    relatorios_db = RelatoriosDatabase()
-    
-    historico = relatorios_db.get_historico_precos_fornecedor(codigo)
+    historico = RelatoriosDatabase().get_historico_precos_lotes(codigo)
+    return jsonify({"historico": historico}) if historico else jsonify({"mensagem": "Sem dados."})
 
-    if historico:
-        return jsonify({
-            "cod_barras": codigo,
-            "historico": historico
-        }), 200
-    else:
-        return jsonify({"mensagem": f"Nenhum histórico de preço encontrado nos últimos 3 meses para o produto {codigo}."}), 200
-    
-@relatorios_bp.route('/relatorios/balanco_mensal', methods=['GET'])
-def get_balanco_mensal():
-    import datetime
+@relatorios_bp.route('/relatorios/balanco_financeiro', methods=['GET'])
+def get_balanco_financeiro():
     hoje = datetime.date.today()
+    ano = int(request.args.get('ano', str(hoje.year)))
+    mes = int(request.args.get('mes', str(hoje.month)))
     
-    ano_str = request.args.get('ano', str(hoje.year))
-    mes_str = request.args.get('mes', str(hoje.month))
-    
-    try:
-        ano = int(ano_str)
-        mes = int(mes_str)
-        if mes < 1 or mes > 12:
-             return jsonify({"erro": "Mês inválido (deve ser entre 1 e 12)."}), 400
-    except ValueError:
-        return jsonify({"erro": "O ano e o mês devem ser números inteiros válidos."}), 400
-    
-    relatorios_db = RelatoriosDatabase()
-    
-    balanco = relatorios_db.get_balanco_financeiro_mensal(ano, mes)
+    dados = RelatoriosDatabase().get_balanco_financeiro_mensal(ano, mes)
+    if dados:
+        custos = float(dados.get('total_custos', 0))
+        fat = float(dados.get('total_faturamento', 0))
+        return jsonify({"analise_financeira": {"custos": custos, "faturamento": fat, "lucro": fat - custos, "situacao": "LUCRO" if (fat-custos) >= 0 else "PREJUÍZO"}})
+    return jsonify({"erro": "Erro ao calcular."}), 500
 
-    if balanco:
-        return jsonify({
-            "mes": mes,
-            "ano": ano,
-            "receita_total": balanco.get('receita_total'),
-            "custo_mercadoria_vendida": balanco.get('custo_mercadoria_vendida'),
-            "lucro_bruto": balanco.get('lucro_bruto')
-        }), 200
+# --- ROTAS DE FUNCIONÁRIO (GET, POST, DELETE) ---
+@relatorios_bp.route('/funcionario', methods=['GET'])
+def get_funcionario():
+    cpf = request.args.get('cpf')
+    if not cpf: return jsonify({"erro": "CPF obrigatório."}), 400
+    
+    func = RelatoriosDatabase().get_funcionario_por_cpf(cpf)
+    if func:
+        # Conversão de Decimal para float
+        func['salario'] = float(func['salario']) if func['salario'] else 0.0
+        return jsonify(func)
+    return jsonify({"mensagem": "Não encontrado."}), 404
+
+@relatorios_bp.route('/funcionario', methods=['POST'])
+def criar_funcionario():
+    dados = request.get_json()
+    if RelatoriosDatabase().criar_funcionario(dados):
+        return jsonify({"mensagem": "Criado com sucesso!"}), 201
+    return jsonify({"erro": "Erro ao criar."}), 500
+
+@relatorios_bp.route('/funcionario', methods=['DELETE'])
+def deletar_funcionario():
+    cpf = request.args.get('cpf')
+    if not cpf:
+        return jsonify({"erro": "O parâmetro 'cpf' é obrigatório para exclusão."}), 400
+
+    if RelatoriosDatabase().deletar_funcionario(cpf):
+        return jsonify({"mensagem": f"Funcionário {cpf} removido com sucesso!"}), 200
     else:
-        # Se nenhuma venda ocorreu, a consulta ainda deve retornar zeros (COALESCE).
-        return jsonify({"mensagem": "Nenhum dado financeiro encontrado para o período."}), 200
+        return jsonify({"erro": "Erro ao remover. Verifique se o funcionário possui vendas vinculadas."}), 500

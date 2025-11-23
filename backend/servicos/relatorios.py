@@ -2,163 +2,75 @@ from database.conector import DatabaseManager
 
 class RelatoriosDatabase:
 
-    def __init__(self, db_provider: DatabaseManager | None = None) -> None:
-        # Avoid creating a DB connection at import time by lazy-initializing
+    def __init__(self, db_provider = None):
         self.db = db_provider or DatabaseManager()
 
+    # --- MÉTODOS DE LEITURA (SELECT) ---
     def get_resumo_mensal_por_produto(self, ano: int, mes: int):
-        """
-        Calcula a soma total de entradas (Lote) e saídas (Venda) para CADA produto em um mês específico.
-        """
         query = """
             WITH Movimentacao AS (
-                -- ENTRADAS (Lote)
-                SELECT 
-                    l.cod_produto AS cod_barras,
-                    p.nome AS nome_produto,
-                    l.quantidade AS entrada,
-                    0 AS saida
-                FROM 
-                    Lote l
-                JOIN 
-                    Produto p ON l.cod_produto = p.cod_barras
-                WHERE 
-                    EXTRACT(YEAR FROM data_recebimento) = %s AND EXTRACT(MONTH FROM data_recebimento) = %s
-                
+                SELECT l.cod_produto AS cod_barras, p.nome AS nome_produto, l.quantidade AS entrada, 0 AS saida
+                FROM Lote l JOIN Produto p ON l.cod_produto = p.cod_barras
+                WHERE EXTRACT(YEAR FROM data_recebimento) = %s AND EXTRACT(MONTH FROM data_recebimento) = %s
                 UNION ALL
-                
-                -- SAÍDAS (Venda)
-                SELECT 
-                    vcp.cod_barras,
-                    p.nome AS nome_produto,
-                    0 AS entrada,
-                    vcp.quantidade AS saida
-                FROM 
-                    Venda_Contem_Produto vcp
-                JOIN 
-                    Venda v ON vcp.cod_venda = v.cod_venda
-                JOIN 
-                    Produto p ON vcp.cod_barras = p.cod_barras
-                WHERE 
-                    EXTRACT(YEAR FROM v.data_venda) = %s AND EXTRACT(MONTH FROM v.data_venda) = %s
+                SELECT vcp.cod_barras, p.nome AS nome_produto, 0 AS entrada, vcp.quantidade AS saida
+                FROM Venda_Contem_Produto vcp JOIN Venda v ON vcp.cod_venda = v.cod_venda JOIN Produto p ON vcp.cod_barras = p.cod_barras
+                WHERE EXTRACT(YEAR FROM v.data_venda) = %s AND EXTRACT(MONTH FROM v.data_venda) = %s
             )
-            -- Agrupa as movimentações por produto e soma
-            SELECT
-                cod_barras,
-                nome_produto,
-                SUM(entrada) AS total_entradas,
-                SUM(saida) AS total_saidas
-            FROM
-                Movimentacao
-            GROUP BY
-                cod_barras, nome_produto
-            ORDER BY
-                nome_produto ASC;
+            SELECT cod_barras, nome_produto, SUM(entrada) AS total_entradas, SUM(saida) AS total_saidas
+            FROM Movimentacao GROUP BY cod_barras, nome_produto ORDER BY nome_produto ASC;
         """
-        params = (ano, mes, ano, mes)
-        
-        # Usamos execute_select_all porque retorna várias linhas (uma por produto)
-        return self.db.execute_select_all(query, params)
+        return self.db.execute_select_all(query, (ano, mes, ano, mes))
 
     def get_relatorio_movimentacao(self, cod_barras=None):
-        """
-        Gera um relatório unificado de entrada e saída.
-        Se cod_barras for None, retorna a movimentação de TODOS os produtos.
-        """
-
         where_clause = "WHERE l.cod_produto = %s" if cod_barras else ""
         where_clause_venda = "WHERE vcp.cod_barras = %s" if cod_barras else ""
-
         params = (cod_barras, cod_barras) if cod_barras else ()
 
         query = f"""
-            -- ENTRADAS (Lote)
-            SELECT 
-                'ENTRADA' AS tipo_movimento,
-                l.data_recebimento AS data_movimento,
-                l.quantidade,
-                CAST(l.cod_lote AS VARCHAR) AS referencia,
-                l.cod_produto,
-                p.nome AS nome_produto    -- Adicionado o nome do produto
-            FROM 
-                Lote l
-            JOIN
-                Produto p ON l.cod_produto = p.cod_barras
-            {where_clause}
-            
+            SELECT 'ENTRADA' AS tipo_movimento, l.data_recebimento AS data_movimento, l.quantidade, CAST(l.cod_lote AS VARCHAR) AS referencia, l.cod_produto, p.nome AS nome_produto
+            FROM Lote l JOIN Produto p ON l.cod_produto = p.cod_barras {where_clause}
             UNION ALL
-            
-            -- SAÍDAS (Venda)
-            SELECT 
-                'SAÍDA' AS tipo_movimento,
-                v.data_venda AS data_movimento,
-                (vcp.quantidade * -1) AS quantidade,
-                CAST(vcp.cod_venda AS VARCHAR) AS referencia,
-                vcp.cod_barras AS cod_produto,
-                p.nome AS nome_produto    -- Adicionado o nome do produto
-            FROM 
-                Venda_Contem_Produto vcp
-            JOIN 
-                Venda v ON vcp.cod_venda = v.cod_venda
-            JOIN
-                Produto p ON vcp.cod_barras = p.cod_barras
-            {where_clause_venda}
-            
-            ORDER BY 
-                data_movimento DESC;
+            SELECT 'SAÍDA' AS tipo_movimento, v.data_venda AS data_movimento, (vcp.quantidade * -1) AS quantidade, CAST(vcp.cod_venda AS VARCHAR) AS referencia, vcp.cod_barras AS cod_produto, p.nome AS nome_produto
+            FROM Venda_Contem_Produto vcp JOIN Venda v ON vcp.cod_venda = v.cod_venda JOIN Produto p ON vcp.cod_barras = p.cod_barras {where_clause_venda}
+            ORDER BY data_movimento DESC;
         """
-        # Usamos self.db.execute_select_all para consultas dinâmicas (f-string) e injetamos os parâmetros separadamente
         return self.db.execute_select_all(query, params)
-    
-    def get_historico_precos_fornecedor(self, cod_barras):
-        """
-        Consulta o histórico de preços de compra de um produto específico
-        nos últimos 3 meses, discriminado por lote e fornecedor.
-        """
+
+    def get_historico_precos_lotes(self, cod_barras=None):
         query = """
-            SELECT 
-                p.nome AS produto_nome,
-                f.nome_fornecedor,
-                l.cod_lote,
-                l.preco_compra,
-                l.data_recebimento
-            FROM 
-                Lote l
-            JOIN 
-                Fornecedor f ON l.cod_fornecedor = f.cod_fornecedor
-            JOIN
-                Produto p ON l.cod_produto = p.cod_barras
-            WHERE 
-                l.cod_produto = %s
-                AND l.data_recebimento >= current_date - interval '3 months'
-            ORDER BY 
-                l.data_recebimento DESC;
+            SELECT p.nome AS nome_produto, l.cod_lote, l.data_recebimento, l.preco_compra, l.quantidade
+            FROM Lote l JOIN Produto p ON l.cod_produto = p.cod_barras
+            WHERE l.data_recebimento >= CURRENT_DATE - INTERVAL '3 months'
         """
-        # Usamos execute_select_all porque pode haver vários lotes
-        return self.db.execute_select_all(query, (cod_barras,))
-    
+        params = []
+        if cod_barras:
+            query += " AND l.cod_produto = %s"
+            params.append(cod_barras)
+        query += " ORDER BY l.data_recebimento DESC;"
+        return self.db.execute_select_all(query, tuple(params))
+
     def get_balanco_financeiro_mensal(self, ano: int, mes: int):
-        """
-        Calcula o Lucro Bruto (Receita - CMV) de todas as vendas em um mês.
-        NOTA: Para simplificar, esta consulta usa o PREÇO DE COMPRA DO LOTE MAIS RECENTE
-        para calcular o CMV, o que é uma aproximação.
-        """
         query = """
-            SELECT 
-                COALESCE(SUM(v.valor_total), 0) AS receita_total,
-                COALESCE(SUM(vcp.quantidade * l.preco_compra), 0) AS custo_mercadoria_vendida,
-                (COALESCE(SUM(v.valor_total), 0) - COALESCE(SUM(vcp.quantidade * l.preco_compra), 0)) AS lucro_bruto
-            FROM 
-                Venda v
-            JOIN 
-                Venda_Contem_Produto vcp ON v.cod_venda = vcp.cod_venda
-            JOIN 
-                Lote l ON vcp.cod_barras = l.cod_produto
-            WHERE 
-                EXTRACT(YEAR FROM v.data_venda) = %s 
-                AND EXTRACT(MONTH FROM v.data_venda) = %s;
+            SELECT
+                (SELECT COALESCE(SUM(l.quantidade * l.preco_compra), 0) FROM Lote l WHERE EXTRACT(YEAR FROM l.data_recebimento) = %s AND EXTRACT(MONTH FROM l.data_recebimento) = %s) AS total_custos,
+                (SELECT COALESCE(SUM(vcp.quantidade * p.preco_venda), 0) FROM Venda_Contem_Produto vcp JOIN Venda v ON vcp.cod_venda = v.cod_venda JOIN Produto p ON vcp.cod_barras = p.cod_barras WHERE EXTRACT(YEAR FROM v.data_venda) = %s AND EXTRACT(MONTH FROM v.data_venda) = %s) AS total_faturamento;
         """
-        params = (ano, mes)
-        
-        # Usamos execute_select_one pois o resultado é uma única linha de resumo
-        return self.db.execute_select_one(query, params)
+        return self.db.execute_select_one(query, (ano, mes, ano, mes))
+
+    def get_funcionario_por_cpf(self, cpf: str):
+        query = "SELECT cpf, nome_completo, cod_setor, cargo, salario, genero, endereco FROM Funcionario WHERE cpf = %s;"
+        return self.db.execute_select_one(query, (cpf,))
+
+    # --- MÉTODOS DE ESCRITA (INSERT / DELETE) ---
+    def criar_funcionario(self, dados):
+        query = "INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+        params = (dados['cpf'], dados['nome_completo'], dados['cod_setor'], dados['cargo'], dados.get('genero'), dados.get('endereco'), dados['salario'])
+        return self.db.execute_statement(query, params)
+
+    def deletar_funcionario(self, cpf: str):
+        """
+        Remove um funcionário pelo CPF.
+        """
+        query = "DELETE FROM Funcionario WHERE cpf = %s;"
+        return self.db.execute_statement(query, (cpf,))
