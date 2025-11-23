@@ -208,3 +208,28 @@ INSERT INTO Venda (cod_venda, data_venda, valor_total, forma_pagamento, qntd_par
 (38, '2024-03-13', 90.00, 'Débito', 1, 0.00, '33445566778'),
 (39, '2024-03-13', 110.00, 'PIX', 1, 0.00, '44556677889'),
 (40, '2024-03-14', 45.00, 'Dinheiro', 1, 0.00, '55667788990');
+
+
+CREATE TABLE Usuario (
+    login VARCHAR(50) PRIMARY KEY,
+    senha VARCHAR(255) NOT NULL, -- Em produção, usaríamos hash (MD5/SHA)
+    cpf_funcionario CHAR(11) NOT NULL,
+    FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf)
+);
+
+ INSERT INTO Setor (cod_setor, nome_setor, cpf_gerente) VALUES (5, 'Administração', NULL);
+ 
+ INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) 
+VALUES 
+('20000000002', 'Carlos Alberto', 4, 'Diretor Financeiro', 'M', 'Rua das Contas, 100', 12000.00),
+('30000000003', 'Roberto Carlos', 5, 'Diretor Geral', 'M', 'Av. da Diretoria, 1000', 25000.00);
+
+INSERT INTO Usuario (login, senha, cpf_funcionario) VALUES 
+('financeiro', '1234', '20000000002'),
+('diretor', '1234', '30000000003');
+
+
+
+
+ 
+ 
