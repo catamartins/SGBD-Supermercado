@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/style.css">
+  <title>Vendas | Supermercado Castelus</title>
+</head>
+
+<body>
+  <div id="menu_lateral"></div>
+  <script src="/components/menu_lateral/menu_lateral.js"></script>
+
+  <section class="conteudo-pagina">
+
+    <h1 class="titulo-pagina">Registrar Venda</h1>
+
+    <section class="scanner">
+      <h3 style="margin:0 0 10px">Scanner de Código de Barras</h3>
+      <div style="display:flex;gap:12px;align-items:center">
+        <input id="barcode" placeholder="Digite ou escaneie o código de barras" />
+        <button class="btn" onclick="addProduct()">Adicionar</button>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:13px">Códigos de teste: 7891234567890 a 7891234567894</div>
+    </section>
+
+    <section class="sale-list" id="saleList">
+      <div class="empty">Nenhum produto adicionado</div>
+    </section>
+    
+
+  </section>
+
+
+</body>
+
+</html>
