@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGBD Supermercado</title>
+    <title>Supermercado Castelus</title>
 
     <!-- DEIXE APENAS ESTA LINHA DE CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -13,13 +13,13 @@
 <body>
 
     <!-- Container Flex para colocar menu ao lado do conteúdo -->
-    <div style="display: flex; min-height: 100vh;">
+    <div class="app-container">
         
         <!-- Menu Lateral -->
         {% include 'menu_lateral.html' %}
 
         <!-- Conteúdo Principal -->
-        <main style="flex: 1; padding: 20px; background-color: #f4f6f8; overflow-y: auto;">
+        <main style="flex: 1; padding: 30px; background-color: #f4f6f8; overflow-y: auto; margin-left: 260px">
             {% block content %}
             {% endblock %}
         </main>

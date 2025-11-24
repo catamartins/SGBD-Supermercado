@@ -48,7 +48,8 @@ class RelatoriosDatabase:
     # --- ESTOQUE (Lista completa) ---
     def get_todos_lotes(self):
         query = """
-            SELECT l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
+            SELECT p.cod_barras, l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
+            -- SELECT l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
             FROM Lote l
             JOIN Produto p ON l.cod_produto = p.cod_barras
             JOIN Fornecedor f ON l.cod_fornecedor = f.cod_fornecedor

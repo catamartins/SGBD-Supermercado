@@ -10,10 +10,10 @@ async function carregarLotes() {
         tbody.innerHTML += `
             <tr>
                 <td>${l.produto}</td>
+                <td>${l.cod_barras}</td>
                 <td>LOTE-${l.cod_lote}</td>
                 <td>${l.quantidade}</td>
                 <td>${new Date(l.data_validade).toLocaleDateString()}</td>
-                <td>Depósito</td>
                 <td>
                     <button onclick="excluirLote(${l.cod_lote})" style="color:red;border:none;background:none;cursor:pointer">🗑️</button>
                 </td>
