@@ -62,17 +62,17 @@ class VendaDatabase:
             print(f"Venda {cod_venda_gerado} registrada com sucesso!")
             return True
 
-        except Exception as e:
-            # Se der qualquer erro, desfaz tudo (Rollback)
-            self.db.conn.rollback()
-            print(f"\n!!! ERRO AO GRAVAR VENDA !!!")
-            print(f"Detalhe: {e}")
+        # except Exception as e:
+        #     # Se der qualquer erro, desfaz tudo (Rollback)
+        #     self.db.conn.rollback()
+        #     print(f"\n!!! ERRO AO GRAVAR VENDA !!!")
+        #     print(f"Detalhe: {e}")
             
-            self.db.conn.commit()
-            print(f"Venda {cod_venda_gerado} registrada com sucesso!")
+        #     self.db.conn.commit()
+        #     print(f"Venda {cod_venda_gerado} registrada com sucesso!")
             
-            # ALTERAÇÃO AQUI: Retorna o ID gerado em vez de apenas True
-            return cod_venda_gerado 
+        #     # ALTERAÇÃO AQUI: Retorna o ID gerado em vez de apenas True
+        #     return cod_venda_gerado 
 
         except Exception as e:
             self.db.conn.rollback()
