@@ -11,7 +11,8 @@ def registrar_venda():
     if not dados:
         return jsonify({"erro": "Nenhum dado enviado."}), 400
         
-    campos_obrigatorios = ['codigo_venda', 'cpf_funcionario', 'valor_total', 'itens']
+    # Removemos 'codigo_venda' da validação, pois ele é gerado pelo banco agora
+    campos_obrigatorios = ['cpf_funcionario', 'valor_total', 'itens']
     for campo in campos_obrigatorios:
         if campo not in dados:
             return jsonify({"erro": f"O campo '{campo}' é obrigatório."}), 400
@@ -21,12 +22,15 @@ def registrar_venda():
 
     # 2. Processamento
     venda_db = VendaDatabase()
-    sucesso = venda_db.registrar_venda(dados)
+    
+    # AQUI ESTÁ A MUDANÇA PRINCIPAL:
+    # A função registrar_venda agora retorna o ID (número) ou None
+    id_venda_gerado = venda_db.registrar_venda(dados)
 
-    if sucesso:
+    if id_venda_gerado:
         return jsonify({
             "mensagem": "Venda registrada com sucesso!",
-            "codigo_venda": dados['codigo_venda']
+            "codigo_venda": id_venda_gerado  # Usamos o ID que veio do banco, não o do 'dados'
         }), 201
     else:
-        return jsonify({"erro": "Erro ao registrar venda. Verifique se o código já existe ou se os produtos são válidos."}), 500
+        return jsonify({"erro": "Erro ao registrar venda"}), 500

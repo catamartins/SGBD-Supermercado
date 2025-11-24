@@ -107,27 +107,26 @@ async function finalizarVenda() {
     if (!pgto) return; 
 
     const user = JSON.parse(localStorage.getItem('usuario'));
-    // Se não tiver login, usa um CPF de teste (ex: João Caixa)
-    const cpfFuncionario = user ? user.login : "99988877766"; 
+    const cpfFuncionario = (user && user.cpf_funcionario) ? user.cpf_funcionario : "11223344556"; 
 
-    // Monta o JSON
+    // CORREÇÃO AQUI: Gerar um ID numérico seguro para INT (Max 2 Bilhões)
+    // Usamos Math.floor(Math.random() * 1000000) para gerar um ID aleatório até 1 milhão
+    const codigoVendaNumerico = Math.floor(Math.random() * 100000000);
+
     const vendaJSON = {
-        codigo_venda: `V-${Date.now()}`,
         data_venda: new Date().toISOString(),
         cpf_funcionario: cpfFuncionario, 
         valor_total: totalVenda,
         forma_pagamento: pgto,
         parcelas: 1,
         desconto: 0,
-        // O carrinho já está agrupado, então o backend vai receber certinho
         itens: carrinho.map(item => ({
             cod_produto: item.cod_produto,
             quantidade: item.quantidade
-            // Preço unitário removido conforme sua solicitação anterior
         }))
     };
 
-    console.log("Enviando venda:", vendaJSON); // Para debug no console
+    console.log("Enviando venda:", vendaJSON);
 
     try {
         const res = await fetch('http://127.0.0.1:8000/venda', {
@@ -137,7 +136,12 @@ async function finalizarVenda() {
         });
 
         if (res.ok) {
-            alert("✅ Venda realizada com sucesso!");
+            // 1. Pegamos a resposta do servidor
+            const resposta = await res.json();
+            
+            // 2. Mostramos o ID real que veio do banco
+            alert(`✅ Venda ${resposta.codigo_venda} realizada com sucesso!`);
+            
             window.location.reload();
         } else {
             const erro = await res.json();

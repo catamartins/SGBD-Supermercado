@@ -18,6 +18,7 @@ class DatabaseManager:
         )
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
 
+    #Alguns prints para ajudar no debug
     def execute_statement(self, statement: str, params: tuple = ()) -> bool:
         """
         Executa INSERT, UPDATE, DELETE com suporte a parâmetros (%s)

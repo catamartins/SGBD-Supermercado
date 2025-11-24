@@ -348,6 +348,8 @@ INSERT INTO Venda_Contem_Produto (cod_venda, cod_barras, quantidade) VALUES
 (20, '7893000302', 4); -- Venda 20
 ON CONFLICT DO NOTHING;
 
+SELECT setval('venda_cod_venda_seq', (SELECT MAX(cod_venda) FROM Venda));
+
 
 
 

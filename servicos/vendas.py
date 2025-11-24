@@ -6,56 +6,76 @@ class VendaDatabase:
 
     def registrar_venda(self, dados_venda):
         """
-        Recebe o objeto de venda completo e grava no banco.
-        1. Insere na tabela Venda.
-        2. Insere os itens na tabela Venda_Contem_Produto (SEM PREÇO UNITÁRIO).
+        Registra a venda deixando o Banco de Dados gerar o ID (Serial).
         """
-        
-        # 1. Inserir a VENDA (Cabeçalho)
-        query_venda = """
-            INSERT INTO Venda (
-                cod_venda, 
-                data_venda, 
-                cpf_funcionario, 
-                valor_total, 
-                forma_pagamento, 
-                parcelas, 
-                desconto
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """
-        params_venda = (
-            dados_venda['codigo_venda'],
-            dados_venda['data_venda'],
-            dados_venda['cpf_funcionario'],
-            dados_venda['valor_total'],
-            dados_venda['forma_pagamento'],
-            dados_venda['parcelas'],
-            dados_venda.get('desconto', 0)
-        )
-        
-        # Tenta gravar a venda
-        if not self.db.execute_statement(query_venda, params_venda):
-            return False 
-
-        # 2. Inserir os ITENS (Agora sem preço unitário)
-        query_item = """
-            INSERT INTO Venda_Contem_Produto (
-                cod_venda, 
-                cod_barras, 
-                quantidade
-            ) VALUES (%s, %s, %s);
-        """
-        
-        for item in dados_venda['itens']:
-            params_item = (
-                dados_venda['codigo_venda'],
-                item['cod_produto'],
-                item['quantidade']
-                # Removido item['preco_unitario']
+        try:
+            # 1. Inserir a VENDA (Cabeçalho) e RECUPERAR o ID gerado
+            # Note o "RETURNING cod_venda" no final da query
+            query_venda = """
+                INSERT INTO Venda (
+                    data_venda, 
+                    cpf_funcionario, 
+                    valor_total, 
+                    forma_pagamento, 
+                    qntd_parcelas,   
+                    valor_desconto   
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING cod_venda;
+            """
+            
+            # Monta os dados. 
+            # IMPORTANTE: Não passamos mais o 'codigo_venda' aqui.
+            params_venda = (    
+                dados_venda['data_venda'],
+                dados_venda['cpf_funcionario'],
+                dados_venda['valor_total'],
+                dados_venda['forma_pagamento'],
+                dados_venda['parcelas'],      # O JS manda 'parcelas', gravamos em 'qntd_parcelas'
+                dados_venda.get('desconto', 0) 
             )
             
-            if not self.db.execute_statement(query_item, params_item):
-                print(f"Erro ao gravar item: {item['cod_produto']}")
-                return False
+            # Executamos diretamente no cursor para poder pegar o retorno (ID)
+            self.db.cursor.execute(query_venda, params_venda)
+            
+            # Pega o ID que o banco acabou de criar
+            cod_venda_gerado = self.db.cursor.fetchone()[0]
+            
+            # 2. Inserir os ITENS usando o ID gerado
+            query_item = """
+                INSERT INTO Venda_Contem_Produto (
+                    cod_venda, 
+                    cod_barras, 
+                    quantidade
+                ) VALUES (%s, %s, %s);
+            """
+            
+            for item in dados_venda['itens']:
+                params_item = (
+                    cod_venda_gerado,    # Usamos o ID que pegamos do banco acima
+                    item['cod_produto'],
+                    item['quantidade']
+                )
+                self.db.cursor.execute(query_item, params_item)
 
-        return True
+            # Se tudo deu certo até aqui, confirmamos a transação (Commit)
+            self.db.conn.commit()
+            print(f"Venda {cod_venda_gerado} registrada com sucesso!")
+            return True
+
+        except Exception as e:
+            # Se der qualquer erro, desfaz tudo (Rollback)
+            self.db.conn.rollback()
+            print(f"\n!!! ERRO AO GRAVAR VENDA !!!")
+            print(f"Detalhe: {e}")
+            
+            self.db.conn.commit()
+            print(f"Venda {cod_venda_gerado} registrada com sucesso!")
+            
+            # ALTERAÇÃO AQUI: Retorna o ID gerado em vez de apenas True
+            return cod_venda_gerado 
+
+        except Exception as e:
+            self.db.conn.rollback()
+            print(f"\n!!! ERRO AO GRAVAR VENDA !!!")
+            print(f"Detalhe: {e}")
+            return None # Retorna None em caso de erro
