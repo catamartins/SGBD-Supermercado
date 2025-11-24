@@ -79,3 +79,13 @@ class RelatoriosDatabase:
         # Primeiro remove usuário de login se existir, depois o funcionário
         self.db.execute_statement("DELETE FROM Usuario WHERE cpf_funcionario = %s", (cpf,))
         return self.db.execute_statement("DELETE FROM Funcionario WHERE cpf = %s", (cpf,))
+    
+    def get_funcionarios_por_setor(self, nome_setor):
+        query = """
+            SELECT f.cpf, f.nome_completo, f.cargo, s.nome_setor as setor, f.salario
+            FROM Funcionario f
+            JOIN Setor s ON f.cod_setor = s.cod_setor
+            WHERE s.nome_setor ILIKE %s
+            ORDER BY f.nome_completo ASC
+        """
+        return self.db.execute_select_all(query, (f'%{nome_setor}%',))
