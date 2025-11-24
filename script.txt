@@ -314,9 +314,9 @@ CREATE TABLE Usuario (
     FOREIGN KEY (cpf_funcionario) REFERENCES Funcionario(cpf)
 );
 
- INSERT INTO Setor (cod_setor, nome_setor, cpf_gerente) VALUES (5, 'Administração', NULL);
+INSERT INTO Setor (cod_setor, nome_setor, cpf_gerente) VALUES (5, 'Administração', NULL);
  
- INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) 
+INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) 
 VALUES 
 ('20000000002', 'Carlos Alberto', 4, 'Diretor Financeiro', 'M', 'Rua das Contas, 100', 12000.00),
 ('30000000003', 'Roberto Carlos', 5, 'Diretor Geral', 'M', 'Av. da Diretoria, 1000', 25000.00);
@@ -350,9 +350,12 @@ ON CONFLICT DO NOTHING;
 
 SELECT setval('venda_cod_venda_seq', (SELECT MAX(cod_venda) FROM Venda));
 
+INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) 
+VALUES 
+('40000000004', 'Juan Jose', 3, 'Operador de Caixa', 'M', 'Rua dos Caixas, 10', 1600.00);
 
-
-
+INSERT INTO Usuario (login, senha, cpf_funcionario) VALUES 
+('caixa', '1234', '40000000004');
  
  
 
