@@ -12,7 +12,7 @@ class DatabaseManager:
         self.conn = psycopg2.connect(
             dbname="supermercado_castelus",
             user="postgres",
-            password='password',
+            password='1234',
             host="127.0.0.1",
             port=5432
         )

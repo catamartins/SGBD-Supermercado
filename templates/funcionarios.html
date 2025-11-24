@@ -8,10 +8,10 @@
     <section class="card-longo">
         <h3>Buscar</h3>
         <div style="display:flex;gap:12px;margin-bottom:14px">
-            <input id="busca-nome" placeholder="Buscar por CPF exato" style="flex:1;padding:12px;border-radius:10px;border:1px solid #ddd;" />
-            
-            <!-- Selects de Filtro (Opcional, backend busca só por CPF por enquanto) -->
-            <select id="filtro-setor"><option value="">Filtrar por Setor</option></select>
+            <input id="busca-cpf" placeholder="Buscar por CPF exato" 
+                style="flex: 2; padding:12px; border-radius:10px; border:1px solid #ddd;"
+                oninput="toggleFilters()" /> <select id="filtro-setor" style="flex: 1;" onchange="toggleFilters()"> <option value="">Filtrar por Setor</option>
+            </select>
             
             <button class="btn" onclick="filtrarFuncionarios()">Buscar</button>
         </div>

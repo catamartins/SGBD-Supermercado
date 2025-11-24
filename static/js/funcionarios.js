@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function preencherSelects() {
     // 1. LISTA RESTRITA PARA O FILTRO (O que você pediu)
     const filtroSetor = document.getElementById('filtro-setor');
-    const setoresFiltro = ["Administrativo", "Financeiro", "Frente de Caixa", "Açougue"];
+    const setoresFiltro = ["Açougue","Padaria","Frente de Loja","Financeiro"];
 
     if(filtroSetor) {
         filtroSetor.innerHTML = '<option value="">Filtrar por Setor</option>';
@@ -86,32 +86,96 @@ async function addFuncionario() {
     } catch (e) { alert("Erro conexão."); }
 }
 
+function toggleFilters() {
+    const cpfInput = document.getElementById('busca-cpf');
+    const setorSelect = document.getElementById('filtro-setor');
+    
+    // Se o CPF está preenchido, desativa o filtro por setor
+    if (cpfInput.value.trim() !== '') {
+        setorSelect.disabled = true;
+        setorSelect.value = ""; // Limpa o valor do setor ao focar no CPF
+    } 
+    // Se o CPF está vazio, e o Setor está selecionado, desativa o campo CPF
+    else if (setorSelect.value.trim() !== '') {
+        cpfInput.disabled = true;
+        cpfInput.value = ""; // Limpa o valor do CPF ao focar no setor
+    }
+    // Se ambos estão vazios, reativa ambos
+    else {
+        cpfInput.disabled = false;
+        setorSelect.disabled = false;
+    }
+}
+
 async function filtrarFuncionarios() {
-    const cpf = document.getElementById('busca-nome').value; // Usamos o campo de busca para CPF
+    // 1. Captura ambos os valores de filtro (CPF e Setor)
+    // O valor deve ser lido diretamente, pois 'toggleFilters' já garante que um esteja vazio ou desativado.
+    const cpf = document.getElementById('busca-cpf').value.trim(); 
+    const setor = document.getElementById('filtro-setor').value.trim();
+    
     const tbody = document.getElementById('funcionarios-body');
     tbody.innerHTML = '';
+    
+    let apiUrl = 'http://127.0.0.1:8000/funcionario';
+    let isSetorSearch = false; 
+    
+    // A lógica de prioridade permanece:
+    if (cpf) {
+        apiUrl += `?cpf=${cpf}`;
+    } else if (setor) {
+        apiUrl += `?setor=${setor}`;
+        isSetorSearch = true; 
+    } else {
+        tbody.innerHTML = '<tr><td colspan="5" align="center">Preencha o CPF ou selecione um Setor.</td></tr>';
+        return;
+    }
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/funcionario?cpf=${cpf}`);
+        const res = await fetch(apiUrl);
         const data = await res.json();
-
+        
         if (res.ok) {
-            const f = data.dados_contratuais;
-            tbody.innerHTML = `
-                <tr>
-                    <td>${f.nome_completo}</td>
-                    <td>${f.cargo}</td>
-                    <td>${f.setor}</td>
-                    <td>R$ ${f.salario.toFixed(2)}</td>
-                    <td>
-                        <button onclick="excluirFuncionario('${cpf}')" style="color:red;border:none;background:none;cursor:pointer">Excluir</button>
-                    </td>
-                </tr>
-            `;
+            let funcionariosParaRenderizar = [];
+            
+            // 3. Trata a resposta: A API retorna um objeto único ou uma lista?
+            if (isSetorSearch) {
+                // Busca por setor retorna { "funcionarios": [...] }
+                funcionariosParaRenderizar = data.funcionarios || [];
+            } else {
+                // Busca por CPF retorna { "dados_contratuais": {...} }
+                funcionariosParaRenderizar = [data.dados_contratuais];
+            }
+            
+            // 4. Renderiza os resultados (LOOP UNIFICADO)
+            if (funcionariosParaRenderizar.length > 0) {
+                funcionariosParaRenderizar.forEach(f => {
+                    // Garantindo que 'salario' seja um número (se for retornado como string)
+                    const salarioFormatado = (typeof f.salario === 'number' ? f.salario : parseFloat(f.salario)).toFixed(2);
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${f.nome_completo}</td>
+                            <td>${f.cargo}</td>
+                            <td>${f.setor}</td>
+                            <td>R$ ${salarioFormatado}</td>
+                            <td>
+                                <button onclick="excluirFuncionario('${f.cpf}')" style="color:red;border:none;background:none;cursor:pointer">Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                 tbody.innerHTML = '<tr><td colspan="5" align="center">Não encontrado</td></tr>';
+            }
+
         } else {
-            tbody.innerHTML = '<tr><td colspan="5" align="center">Não encontrado</td></tr>';
+            // Trata 404/400
+            tbody.innerHTML = `<tr><td colspan="5" align="center">${data.erro || data.mensagem || 'Não encontrado'}</td></tr>`;
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("Erro na requisição:", e);
+        tbody.innerHTML = '<tr><td colspan="5" align="center">Erro ao conectar com a API.</td></tr>';
+    }
 }
 
 async function excluirFuncionario(cpf) {

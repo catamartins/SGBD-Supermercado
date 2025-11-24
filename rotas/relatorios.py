@@ -44,11 +44,24 @@ def gerir_funcionario():
     
     if request.method == 'GET':
         cpf = request.args.get('cpf')
-        func = db.get_funcionario_por_cpf(cpf)
-        if func:
-            func['salario'] = float(func['salario'])
-            return jsonify({"dados_contratuais": func})
-        return jsonify({"erro": "Não encontrado"}), 404
+        setor = request.args.get('setor')
+        if cpf:
+            # Caso 1: Busca por CPF
+            func = db.get_funcionario_por_cpf(cpf)
+            if func:
+                func['salario'] = float(func['salario'])
+                return jsonify({"dados_contratuais": func})
+            return jsonify({"erro": "Funcionário não encontrado"}), 404
+        
+        elif setor:
+            # Caso 2: Busca por Setor
+            funcs = db.get_funcionarios_por_setor(setor)
+            if funcs:
+                # Converte o salário para float em todos os resultados
+                for func in funcs:
+                    func['salario'] = float(func['salario'])
+                return jsonify({"funcionarios": funcs})
+            return jsonify({"mensagem": f"Nenhum funcionário encontrado no setor: {setor}"}), 404
 
     if request.method == 'POST':
         dados = request.get_json()
@@ -61,3 +74,4 @@ def gerir_funcionario():
         if db.deletar_funcionario(cpf):
             return jsonify({"msg": "Removido"}), 200
         return jsonify({"erro": "Erro ao remover (pode ter vendas vinculadas)"}), 500
+    
