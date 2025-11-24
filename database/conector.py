@@ -10,9 +10,9 @@ class DatabaseManager:
     #Mudar nome de database, usuário e senha para o seu contexto depois de pegar do repositorio
     def __init__(self) -> None:
         self.conn = psycopg2.connect(
-            dbname="supermercado",
-            user="adm",
-            password='1234',
+            dbname="supermercado_castelus",
+            user="postgres",
+            password='password',
             host="127.0.0.1",
             port=5432
         )

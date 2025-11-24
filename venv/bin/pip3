@@ -1,4 +1,6 @@
-#!/home/luiza/Documents/bd/SGBD-Supermercado/venv/bin/python3
+#!/bin/sh
+'''exec' "/home/stefanie/Documentos/GitHub/Mercado BD/Supermercado (luiza)/venv/bin/python3" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -19,7 +19,7 @@ body {
 .sidebar {
     width: 260px;        /* Largura fixa */
     min-width: 260px;    /* Garante que não encolhe */
-    background-color: #154c79; /* Azul escuro elegante */
+    background-color: #3d70b2;
     color: white;
     display: flex;
     flex-direction: column;
@@ -33,11 +33,11 @@ body {
 .sidebar .logo {
     padding: 20px;
     text-align: center;
-    background-color: #103a5e; /* Fundo levemente mais escuro */
+    background-color: #2a63af; /* Fundo levemente mais escuro */
 }
 
 .sidebar .logo img {
-    max-width: 140px;    /* Tamanho máximo controlado */
+    max-width: 160px;    /* Tamanho máximo controlado */
     height: auto;
     display: block;
     margin: 0 auto;      /* Centraliza */
@@ -138,4 +138,8 @@ input, select {
     cursor: pointer;
     font-weight: bold;
 }
-.btn:hover { background-color: #1f618d; }
+.btn:hover {
+    background-color: #1f618d;
+}
+
+
