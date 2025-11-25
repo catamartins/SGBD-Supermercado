@@ -50,3 +50,17 @@ class EstoqueDatabase:
         """
         query = "DELETE FROM Fornecedor WHERE cod_fornecedor = %s;"
         return self.db.execute_statement(query, (cod_fornecedor,))
+    
+    def get_todos_fornecedores(self):
+        """
+        Retorna lista de todos os fornecedores com cod_fornecedor e nome_fornecedor.
+        """
+        query = """
+                    SELECT
+                        cod_fornecedor, nome_fornecedor
+                    FROM
+                        Fornecedor
+                    ORDER BY
+                        nome_fornecedor ASC;
+                """
+        return self.db.execute_select_all(query)
