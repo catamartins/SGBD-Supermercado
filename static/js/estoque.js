@@ -1,7 +1,8 @@
 
 document.addEventListener('DOMContentLoaded', function() {
-    carregarLotes();
+    // carregarLotes();
     carregarFornecedores();
+    carregarCategorias();
     limparFormularios();
 })
 
@@ -164,4 +165,175 @@ function parsePreco(valor) {
     
     // Retorna com 2 casas decimais
     return Math.round(preco * 100) / 100;
+}
+
+
+// BUSCA POR PRODUTO EM ESTOQUE
+async function filtrarProdutosEmEstoque() {
+    // 1. Captura ambos os valores de filtro (Descricao e Categoria)
+    // O valor deve ser lido diretamente, pois 'toggleFilters' já garante que um esteja vazio ou desativado.
+    const descricao = document.getElementById('busca-descricao').value.trim(); 
+    const categoria = document.getElementById('filtro-categoria').value.trim();
+    
+    const tbody = document.getElementById('produtos_em_estoque-body');
+    tbody.innerHTML = '';
+    
+    let apiUrl = 'http://127.0.0.1:8000/produto/em_estoque';
+    let params = []; 
+    
+    if (descricao) {
+        params.push(`descricao=${encodeURIComponent(descricao)}`);
+    }
+    if (categoria) {
+        params.push(`categoria=${encodeURIComponent(categoria)}`);
+    }
+
+    if (params.length > 0) {
+        apiUrl += `?${params.join('&')}`;
+    } else {
+        tbody.innerHTML = '<tr><td colspan="5" align="center">Preencha a descrição ou selecione uma categoria.</td></tr>';
+        return;
+    }
+
+    try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        
+        if (res.ok) {
+            data.forEach(produto => {
+                // Determina o status baseado na quantidade em estoque vs. estoque mínimo
+                let status = '';
+                let statusColor = '';
+                const qtd = produto.qtd_em_estoque || 0;
+                const minimo = produto.estoque_minimo || 0;
+                
+                if (qtd < minimo) {
+                    status = 'Crítico';
+                    statusColor = '#ff4444'; // Vermelho
+                } else if (qtd <= minimo * 2) {
+                    status = 'Baixo';
+                    statusColor = '#ffaa00'; // Amarelo
+                } else {
+                    status = 'Normal';
+                    statusColor = '#44aa44'; // Verde
+                }
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${produto.cod_barras}</td>
+                        <td>${produto.nome}</td>
+                        <td>${produto.tipo_produto}</td>
+                        <td>${produto.qtd_em_estoque}</td>
+                        <td><span style="color: ${statusColor}; font-weight: bold;">● ${status}</span></td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5" align="center">${data.erro}</td></tr>`;
+        }
+    } catch (e) {
+        console.error("Erro na requisição:", e);
+        tbody.innerHTML = '<tr><td colspan="5" align="center">Erro ao conectar com a API.</td></tr>';
+    }
+}
+
+
+
+function toggleFilters() {
+    const descricaoInput = document.getElementById('busca-descricao');
+    const catogoriaSelect = document.getElementById('filtro-categoria');
+    
+    // Se a descricao está preenchida, desativa o filtro por categoria
+    if (descricaoInput.value.trim() !== '') {
+        catogoriaSelect.disabled = true;
+        catogoriaSelect.value = ""; // Limpa o valor da categoria ao focar na descricao
+    } 
+    // Se a descricao está vazia, e a categoria está selecionada, desativa o campo descricao
+    else if (catogoriaSelect.value.trim() !== '') {
+        descricaoInput.disabled = true;
+        descricaoInput.value = ""; // Limpa o valor da descricao ao focar na categoria
+    }
+    // Se ambos estão vazios, reativa ambos
+    else {
+        descricaoInput.disabled = false;
+        catogoriaSelect.disabled = false;
+    }
+}
+
+
+async function carregarCategorias() {
+    try {
+        const res = await fetch('http://127.0.0.1:8000/produto/categorias');
+        const categorias = await res.json();
+        const select = document.getElementById('filtro-categoria');
+        
+        categorias.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.tipo_produto;
+            option.textContent = cat.tipo_produto;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.error('Erro ao carregar categorias:', e);
+    }
+}
+
+
+async function cadastrarProduto() {
+    const cod_barras = document.getElementById('prod-barras').value.trim();
+    const nome = document.getElementById('prod-nome').value.trim();
+    const tipo_produto = document.getElementById('prod-categoria').value.trim();
+    const preco_venda_str = document.getElementById('prod-preco').value.trim();
+    const estoque_minimo_str = document.getElementById('prod-estoque-min').value.trim();
+    
+    // Validação
+    if (!cod_barras || !nome || !tipo_produto || !preco_venda_str || !estoque_minimo_str) {
+        return alert("Preencha todos os campos obrigatórios!");
+    }
+    
+    // Converte preço usando a função parsePreco
+    const preco_venda = parsePreco(preco_venda_str);
+    if (preco_venda === null) {
+        return alert("Preço de venda inválido. Use formato: 10.50 ou 10,50");
+    }
+    
+    const estoque_minimo = parseInt(estoque_minimo_str);
+    if (isNaN(estoque_minimo)) {
+        return alert("Estoque mínimo deve ser um número válido.");
+    }
+    
+    // Monta payload
+    const payload = {
+        cod_barras: cod_barras,
+        nome: nome,
+        tipo_produto: tipo_produto,
+        preco_venda: preco_venda,
+        estoque_minimo: estoque_minimo
+    };
+    
+    // Chamada API
+    try {
+        const res = await fetch('http://127.0.0.1:8000/produto', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+            alert("Produto cadastrado com sucesso!");
+            // Limpa os campos
+            document.getElementById('prod-barras').value = '';
+            document.getElementById('prod-nome').value = '';
+            document.getElementById('prod-categoria').value = '';
+            document.getElementById('prod-preco').value = '';
+            document.getElementById('prod-estoque-min').value = '';
+            carregarCategorias(); // Recarrega categorias para incluir a nova
+        } else {
+            const erro = await res.json();
+            alert(`Erro: ${erro.erro || erro.mensagem || 'Erro ao cadastrar produto.'}`);
+        }
+    } catch (e) {
+        console.error("Erro na requisição:", e);
+        alert("Erro ao conectar com a API.");
+    }
 }

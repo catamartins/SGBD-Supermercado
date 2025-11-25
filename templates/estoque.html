@@ -5,7 +5,7 @@
     <h1 class="titulo-pagina">Gestão de Estoque</h1>
 
     <!-- ÁREA DE CADASTRO RÁPIDO -->
-    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+    <div style="display: flex; gap: 20px;">
         
         <!-- Cadastrar Lote -->
         <section class="card-longo" style="flex: 2;">
@@ -63,7 +63,66 @@
         </section>
     </div>
 
-    <!-- LISTAGEM -->
+    <!-- Card de Busca de produtos -->
+    <section class="card-longo">
+        <h3> 🔍️ Consultar produto em estoque</h3>
+        <div style="display:flex;gap:12px;margin-bottom:14px; align-items: flex-end;">
+
+            <div style="width: 60%;">
+                <span>Busca por descrição</span>
+                <input id="busca-descricao" placeholder="Insira o nome do produto" style="flex: 2; padding:12px; border-radius:10px; border:1px solid #ddd;" oninput="toggleFilters()" />
+            </div>
+
+            <div style="width: 40%; gap:12px">
+                <span>Categoria</span>
+                <select id="filtro-categoria" style="flex: 1;" onchange="toggleFilters()">
+                    <option value="">Selecione uma categoria</option>
+                </select>    
+            </div>
+            <button class="btn" style="width: 150px;" onclick="filtrarProdutosEmEstoque()">Buscar</button>
+
+        </div>
+        
+        <!-- <h3 style="padding-top: 10px;">Resultado da Busca</h3> -->
+        <table class="tabela" style="margin-top: 30px;">
+            <thead >
+                <tr>
+                    <th>Código de barras</th>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Qtd em estoque</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="produtos_em_estoque-body">
+                <tr><td colspan="5" style="text-align:center">Filte o produto acima</td></tr>
+            </tbody>
+        </table>
+
+    </section>
+
+
+        <!-- Cadastro de novo produto -->
+    <section class="card-longo">
+        <h3>🍉 Cadastrar Novo Produto</h3>
+        <div style="display:flex; gap:12px; margin-bottom:14px">
+            <input id="prod-barras" placeholder="Código de barras" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:5px" />
+            <input id="prod-nome" placeholder="Nome do produto" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:5px" />
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:14px">
+            <input id="prod-categoria" placeholder="Categoria/Tipo" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:5px" />
+            <input id="prod-preco" placeholder="Preço de venda" type="text" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:5px" />
+            <input id="prod-estoque-min" placeholder="Estoque mínimo" type="number" style="flex:1;padding:12px;border:1px solid #ddd;border-radius:5px" />
+            <button class="btn" onclick="cadastrarProduto()" style="width:150px">Cadastrar</button>
+        </div>
+    </section>
+
+</section>
+
+
+
+
+    <!-- LISTAGEM
     <section class="card-longo">
         <h3>📦 Estoque Atual (Lotes)</h3>
         <table class="tabela">
@@ -78,10 +137,11 @@
                 </tr>
             </thead>
             <tbody id="estoque-body">
-                <!-- JS preenche aqui -->
+            
             </tbody>
         </table>
-    </section>
+    </section> -->
+    
 </section>
 {% endblock %}
 
