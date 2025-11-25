@@ -363,3 +363,45 @@ SELECT setval(pg_get_serial_sequence('venda', 'cod_venda'), (SELECT MAX(cod_vend
 -- Diz ao SQL que o próximo número de cod_fornecedor é 41 (porque o adicionamos alguns fornecedores nesse script) 
 SELECT setval(pg_get_serial_sequence('fornecedor', 'cod_fornecedor'), (SELECT MAX(cod_fornecedor) FROM fornecedor)); 
 
+INSERT INTO Fornecedor (cod_fornecedor, nome_fornecedor, data_contratacao) VALUES 
+(50, 'Laticínios Vale Verde', '2022-06-12'),
+(60, 'Panificadora Trigo de Ouro', '2023-01-20'),
+(70, 'Hortifruti Frescor do Campo', '2023-08-15'),
+(80, 'Indústria de Limpeza Brilho Max', '2021-09-30'),
+(90, 'Bebidas Refrescantes S.A.', '2022-11-11'),
+(100, 'Importadora Vinhos Serra Gaúcha', '2020-05-05'),
+(110, 'Conservas da Vovó Maria', '2023-02-28'),
+(120, 'Grãos e Cereais NutriVida', '2022-04-10'),
+(130, 'Distribuidora Carnes Nobres', '2023-07-01'),
+(140, 'Doces e Salgados Delícia', '2021-12-15'),
+(150, 'Embalagens Papel Sul', '2020-10-20'),
+(160, 'Água Mineral Fonte Azul', '2023-09-05'),
+(170, 'Cervejaria Malte Puro', '2022-03-17'),
+(180, 'Fazenda Ovos de Ouro', '2023-04-25'),
+(190, 'Higiene Pessoal Clean', '2021-08-08'),
+(200, 'Café Aroma da Montanha', '2022-07-30'),
+(210, 'Massas Italianas Bella Vita', '2023-06-10'),
+(220, 'Temperos do Oriente', '2021-05-12'),
+(230, 'Queijaria Artesanal Mineira', '2022-09-22'),
+(240, 'Sorvetes Gelato Real', '2023-10-01'),
+(250, 'Atacadão de Descartáveis Prático', '2021-02-14');
+
+INSERT INTO Lote (quantidade, cod_fornecedor, cod_produto, preco_compra, data_recebimento, data_validade) VALUES
+(200, 50, '7893000306', 3.50, '2024-03-01', '2024-06-01'),  -- Leite UHT (Forn: Laticínios Vale Verde)
+(50, 60, '7892000202', 9.00, '2024-03-02', '2024-03-07'),   -- Bolo de Fubá (Forn: Panificadora Trigo)
+(300, 70, '7893000301', 5.00, '2024-02-15', '2024-08-15'),  -- Feijão Carioca (Forn: Hortifruti Frescor - Adaptado)
+(150, 80, '7894000400', 1.80, '2024-02-25', '2026-02-25'),  -- Detergente Líquido (Forn: Ind. Brilho Max)
+(200, 90, '7896000600', 6.00, '2024-02-28', '2024-08-28'),  -- Refrigerante Cola (Forn: Bebidas Refrescantes)
+(60, 100, '7896000602', 6.50, '2024-01-15', '2024-06-15'),  -- Suco de Laranja (Forn: Imp. Vinhos - Adaptado p/ Bebida)
+(100, 110, '7893000302', 4.20, '2024-03-05', '2025-03-05'), -- Óleo de Soja (Forn: Conservas Vovó - Adaptado)
+(400, 120, '7893000305', 12.00, '2024-02-10', '2025-02-10'),-- Café Torrado (Forn: Grãos NutriVida)
+(60, 130, '7891000101', 32.00, '2024-03-10', '2024-03-25'), -- Alcatra (Forn: Dist. Carnes Nobres)
+(300, 140, '7897000700', 4.50, '2024-02-20', '2025-02-20'), -- Chocolate Barra (Forn: Doces Delícia)
+(100, 150, '7895000503', 15.00, '2024-01-25', '2029-01-25'),-- Papel Higiênico (Forn: Embalagens Papel Sul)
+(500, 160, '7896000604', 1.20, '2024-03-01', '2025-03-01'), -- Água Mineral 500ml (Forn: Água Fonte Azul)
+(100, 170, '7896000603', 2.30, '2024-02-28', '2024-08-28'); -- Cerveja Lata (Forn: Cervejaria Malte Puro)
+
+INSERT INTO Funcionario (cpf, nome_completo, cod_setor, cargo, genero, endereco, salario) VALUES
+('55667788900', 'Fausto Silva', 3, 'Operador de Caixa', 'M', 'Rua Pamplona, 900, São Paulo', 1600.00),
+('66778899011', 'Ana Maria Braga', 3, 'Operador de Caixa', 'F', 'Estrada da Gávea, 1200, Rio de Janeiro', 1600.00);
+
