@@ -4,6 +4,12 @@ from servicos.estoque import EstoqueDatabase
 estoque_bp = Blueprint('estoque', __name__)
 
 # --- FORNECEDOR ---
+@estoque_bp.route('/fornecedores', methods=['GET'])
+def get_fornecedores():
+    db = EstoqueDatabase()
+    fornecedores = db.get_todos_fornecedores()
+    return jsonify(fornecedores)
+
 @estoque_bp.route('/fornecedor', methods=['POST'])
 def criar_fornecedor():
     dados = request.get_json()
