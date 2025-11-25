@@ -77,27 +77,6 @@ async function cadastrarLote() {
     }
 }
 
-// // Teste (stefanie)
-// //CADASTRAR LOTE
-// async function cadastrarLote() {
-//     const payload = {
-//         cod_produto: document.getElementById('lote-prod').value,
-//         cod_fornecedor: parseInt(document.getElementById('lote-forn').value),
-//         quantidade: parseInt(document.getElementById('lote-qtd').value),
-//         preco_compra: parseFloat(document.getElementById('lote-preco').value),
-//         data_recebimento: document.getElementById('lote-data').value,
-//         data_validade: document.getElementById('lote-val').value
-//     };
-
-//     if(!payload.cod_produto || !payload.data_recebimento) return alert("Preencha os dados!");
-
-//     const res = await fetch('http://127.0.0.1:8000/lote', {
-//         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-//     });
-
-//     if(res.ok) { alert("Entrada registrada!"); carregarLotes(); }
-//     else { alert("Erro ao registrar entrada."); }
-// }
 
 // CADASTRAR FORNECEDOR
 async function cadastrarFornecedor() {
