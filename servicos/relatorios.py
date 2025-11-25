@@ -90,7 +90,6 @@ class RelatoriosDatabase:
         return self.db.execute_select_all(query, (f'%{nome_setor}%',))
     
 
-# teste (stefanie): Criando uma página de histórico de vendas
 # --- HISTÓRICO DE VENDAS (Lista completa) ---
     def get_historico_vendas_por_periodo(self, data_inicio=None, data_fim=None):
         """
