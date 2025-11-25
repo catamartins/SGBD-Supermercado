@@ -360,5 +360,6 @@ INSERT INTO Usuario (login, senha, cpf_funcionario) VALUES
 -- Diz ao SQL que o próximo número de cod_venda é 41 (porque já adicionamos 40 vendas nesse script) 
 SELECT setval(pg_get_serial_sequence('venda', 'cod_venda'), (SELECT MAX(cod_venda) FROM venda));
 
- 
+-- Diz ao SQL que o próximo número de cod_fornecedor é 41 (porque o adicionamos alguns fornecedores nesse script) 
+SELECT setval(pg_get_serial_sequence('fornecedor', 'cod_fornecedor'), (SELECT MAX(cod_fornecedor) FROM fornecedor)); 
 

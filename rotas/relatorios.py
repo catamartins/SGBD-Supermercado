@@ -76,7 +76,6 @@ def gerir_funcionario():
         return jsonify({"erro": "Erro ao remover (pode ter vendas vinculadas)"}), 500
 
 
-# teste (stefanie): Criando uma página de histórico de vendas
 @relatorios_bp.route('/relatorios/historico_vendas', methods=['GET'])
 def get_historico_vendas():
     db = RelatoriosDatabase()
