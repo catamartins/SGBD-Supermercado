@@ -31,23 +31,50 @@ async function excluirLote(id) {
 
 // CADASTRAR LOTE
 async function cadastrarLote() {
+    // 1. Coleta os valores do DOM (como strings)
+    const cod_produto_str = document.getElementById('lote-prod').value;
+    const cod_fornecedor_str = document.getElementById('lote-forn').value;
+    const quantidade_str = document.getElementById('lote-qtd').value;
+    const preco_compra_str = document.getElementById('lote-preco').value;
+    const data_recebimento_str = document.getElementById('lote-data').value;
+    const data_validade_str = document.getElementById('lote-val').value;
+    
+    // 2. Validação de Preenchimento: Checa se os campos críticos não estão vazios
+    if (
+        !cod_produto_str || !cod_fornecedor_str || !quantidade_str || 
+        !preco_compra_str || !data_recebimento_str
+        // data_validade pode ser nula, dependendo da sua DDL, por isso não a validamos aqui
+    ) {
+        return alert("Por favor, preencha todos os campos obrigatórios: Produto, Fornecedor, Quantidade, Preço e Data de Recebimento.");
+    }
+    
+    // 3. Monta o Payload, aplicando as conversões *depois* de saber que as strings não são vazias
     const payload = {
-        cod_produto: document.getElementById('lote-prod').value,
-        cod_fornecedor: parseInt(document.getElementById('lote-forn').value),
-        quantidade: parseInt(document.getElementById('lote-qtd').value),
-        preco_compra: parseFloat(document.getElementById('lote-preco').value),
-        data_recebimento: document.getElementById('lote-data').value,
-        data_validade: document.getElementById('lote-val').value
+        cod_produto: cod_produto_str,
+        cod_fornecedor: parseInt(cod_fornecedor_str),
+        quantidade: parseInt(quantidade_str),
+        preco_compra: parseFloat(preco_compra_str),
+        data_recebimento: data_recebimento_str,
+        data_validade: data_validade_str
     };
 
-    if(!payload.cod_produto || !payload.data_recebimento) return alert("Preencha os dados!");
-
+    // 4. Checagem de Erro de Conversão (garante que não enviamos NaN)
+    if (isNaN(payload.cod_fornecedor) || isNaN(payload.quantidade) || isNaN(payload.preco_compra)) {
+        return alert("Os campos ID Fornecedor, Quantidade e Preço de Compra devem ser números válidos.");
+    }
+    
+    // 5. Chamada API
     const res = await fetch('http://127.0.0.1:8000/lote', {
         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
     });
 
-    if(res.ok) { alert("Entrada registrada!"); carregarLotes(); }
-    else { alert("Erro ao registrar entrada."); }
+    if(res.ok) { 
+        alert("Entrada registrada!"); 
+        carregarLotes(); 
+    } else { 
+        // A mensagem de erro sugere o erro de FK
+        alert("Erro ao registrar entrada. Verifique se o Código do Produto e o ID do Fornecedor existem no sistema."); 
+    }
 }
 
 // // Teste (stefanie)
