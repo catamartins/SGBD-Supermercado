@@ -10,22 +10,25 @@
         <!-- Cadastrar Lote -->
         <section class="card-longo" style="flex: 2;">
             <h3>📥 Entrada de Lote (Compra)</h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px">
                 <div>
                     <span>Código de barras</span>
                     <input id="lote-prod" placeholder="Cód. Barras Produto" />
                 </div>
                 <div>
                     <span>Fornecedor</span>
-                    <input id="lote-forn" placeholder="ID Fornecedor" type="number" />
+                    <select id="lote-forn" placeholder="ID Fornecedor">
+                        <option value="">Selecione um fornecedor</option>
+                    </select>
                 </div>
                 <div>
                     <span>Quantidade</span>
                     <input id="lote-qtd" placeholder="Quantidade" type="number" />
                 </div>
                 <div>
-                    <span>Preço de compra</span>
-                    <input id="lote-preco" placeholder="Preço Compra (Un)" type="number" step="0.01" />
+                    <span>Preço de compra (Unidade)</span>
+                    <input id="lote-preco" placeholder="Preço Compra (Unidade)" type="text"/>
+                    <!-- <input id="lote-preco" placeholder="Preço Compra (Un)" type="number" step="0.01" /> -->
                 </div>
                 <div>
                     <span>Data do recebimento</span>
@@ -46,6 +49,12 @@
                 <span>Nome da Empresa</span>
                 <input id="forn-nome" placeholder="Ex: Distribuidora ABC LTDA" style="margin-bottom:10px" />
             </div>
+
+            <div>
+                <span>CNPJ da Empresa</span>
+                <input id="forn-cod" placeholder="Insira o CNPJ" style="margin-bottom:10px" />
+            </div>
+
             <div>
                 <span>Data da Contratação</span>
                 <input id="forn-data" type="date" title="Data Contratação" style="margin-bottom:10px" />
