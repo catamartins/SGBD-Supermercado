@@ -49,7 +49,6 @@ class RelatoriosDatabase:
     def get_todos_lotes(self):
         query = """
             SELECT p.cod_barras, l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
-            -- SELECT l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
             FROM Lote l
             JOIN Produto p ON l.cod_produto = p.cod_barras
             JOIN Fornecedor f ON l.cod_fornecedor = f.cod_fornecedor
@@ -89,3 +88,35 @@ class RelatoriosDatabase:
             ORDER BY f.nome_completo ASC
         """
         return self.db.execute_select_all(query, (f'%{nome_setor}%',))
+    
+
+# teste (stefanie): Criando uma página de histórico de vendas
+# --- HISTÓRICO DE VENDAS (Lista completa) ---
+    def get_historico_vendas_por_periodo(self, data_inicio=None, data_fim=None):
+        """
+        Se data_inicio/data_fim forem None retorna todas as vendas.
+        Espera strings 'YYYY-MM-DD' ou objetos date/datetime.
+        """
+        query = """
+            SELECT
+                ven.cod_venda, ven.data_venda, fun.nome_completo, ven.valor_total, ven.forma_pagamento, ven.qntd_parcelas
+            FROM
+                venda ven
+            JOIN
+                funcionario fun
+            ON
+                ven.cpf_funcionario = fun.cpf
+        """
+        params = []
+        if data_inicio and data_fim:
+            query += " WHERE ven.data_venda BETWEEN %s AND %s"
+            params = (data_inicio, data_fim)
+        elif data_inicio:
+            query += " WHERE ven.data_venda >= %s"
+            params = (data_inicio,)
+        elif data_fim:
+            query += " WHERE ven.data_venda <= %s"
+            params = (data_fim,)
+
+        query += " ORDER BY ven.data_venda DESC;"
+        return self.db.execute_select_all(query, params)

@@ -74,4 +74,16 @@ def gerir_funcionario():
         if db.deletar_funcionario(cpf):
             return jsonify({"msg": "Removido"}), 200
         return jsonify({"erro": "Erro ao remover (pode ter vendas vinculadas)"}), 500
-    
+
+
+# teste (stefanie): Criando uma página de histórico de vendas
+@relatorios_bp.route('/relatorios/historico_vendas', methods=['GET'])
+def get_historico_vendas():
+    db = RelatoriosDatabase()
+    inicio = request.args.get('inicio')  # 'YYYY-MM-DD'
+    fim = request.args.get('fim')        # 'YYYY-MM-DD'
+    resultados = db.get_historico_vendas_por_periodo(inicio, fim)
+    # converte formatos numéricos/datas se necessário antes de jsonify
+    for r in resultados:
+        r['valor_total'] = float(r['valor_total'])
+    return jsonify(resultados)

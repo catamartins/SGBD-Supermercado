@@ -7,6 +7,7 @@ from rotas.produto import produto_bp
 from rotas.relatorios import relatorios_bp
 from rotas.estoque import estoque_bp
 from rotas.vendas import venda_bp
+# from rotas.historico import historico_bp
 from rotas.auth import auth_bp
 
 # Inicializa a aplicação
@@ -19,6 +20,7 @@ app.register_blueprint(produto_bp)
 app.register_blueprint(relatorios_bp)
 app.register_blueprint(estoque_bp)
 app.register_blueprint(venda_bp)
+# app.register_blueprint(historico_bp)
 app.register_blueprint(auth_bp)
 
 # --- ROTAS DAS PÁGINAS (TELAS) ---
@@ -41,13 +43,19 @@ def pagina_vendas():
     # Busca o arquivo em: templates/vendas.html
     return render_template('vendas.html')
 
-# 4. Controle de Estoque
+# 4. Histórico de vendas
+@app.route('/pagina/historico')
+def pagina_historico():
+    # Busca o arquivo em: templates/historico.html
+    return render_template('historico.html')
+
+# 5. Controle de Estoque
 @app.route('/pagina/estoque')
 def pagina_estoque():
     # Busca o arquivo em: templates/estoque.html
     return render_template('estoque.html')
 
-# 5. Gestão de Funcionários
+# 6. Gestão de Funcionários
 @app.route('/pagina/funcionarios')
 def pagina_funcionarios():
     # Busca o arquivo em: templates/funcionarios.html

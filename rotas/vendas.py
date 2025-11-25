@@ -34,3 +34,4 @@ def registrar_venda():
         }), 201
     else:
         return jsonify({"erro": "Erro ao registrar venda"}), 500
+    
