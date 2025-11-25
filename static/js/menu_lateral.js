@@ -19,7 +19,7 @@ function verificarAcesso() {
 
     // --- REGRAS DE VISUALIZAÇÃO ---
     
-    // 1. Diretor Financeiro: Vê APENAS Home (Dashboard)
+    // 1. Diretor Financeiro: Vê APENAS Home (Dashboard) e Histórico de vendas
     if (cargo === 'Diretor Financeiro') {
         esconder('menu-vendas');
         esconder('menu-estoque');
@@ -30,6 +30,7 @@ function verificarAcesso() {
     else if (cargo === 'Operador de Caixa') {
         esconder('menu-home');
         esconder('menu-estoque');
+        esconder('menu-historico');
         esconder('menu-funcionarios');
     }
 

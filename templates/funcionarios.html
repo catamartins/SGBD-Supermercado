@@ -7,13 +7,22 @@
     <!-- Card de Busca -->
     <section class="card-longo">
         <h3>Buscar</h3>
-        <div style="display:flex;gap:12px;margin-bottom:14px">
-            <input id="busca-cpf" placeholder="Buscar por CPF exato" 
-                style="flex: 2; padding:12px; border-radius:10px; border:1px solid #ddd;"
-                oninput="toggleFilters()" /> <select id="filtro-setor" style="flex: 1;" onchange="toggleFilters()"> <option value="">Filtrar por Setor</option>
-            </select>
-            
-            <button class="btn" onclick="filtrarVendas()">Buscar</button>
+        <div style="display:flex;gap:12px;margin-bottom:14px; align-items: flex-start;">
+
+            <div style="width: 50%;">
+                <input id="busca-cpf" placeholder="Buscar por CPF exato" style="flex: 2; padding:12px; border-radius:10px; border:1px solid #ddd;" oninput="toggleFilters()" />
+                <span style="color: #999999; font-size: 13px; padding-left: 5px;">CPFs de exemplo: 88990011223, 61029384756, 29384756102, 99887766554</span>
+                
+            </div>
+
+            <div style="display: flex; width: 50%; gap:12px">
+                
+                <select id="filtro-setor" style="flex: 1;" onchange="toggleFilters()">
+                    <option value="">Filtrar por Setor</option>
+                </select>    
+                <button class="btn" style="width: 150px;" onclick="filtrarFuncionarios()">Buscar</button>
+            </div>
+
         </div>
     </section>
 
