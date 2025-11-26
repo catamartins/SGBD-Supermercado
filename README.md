@@ -17,12 +17,12 @@
 
 9. Faça login a partir das visões:
 - Diretoria geral |
-    Usuário: diretor
+    Usuário: diretor |
     Senha: 1234
 - Financeiro |
-    Usuário: financeiro
+    Usuário: financeiro |
     Senha: 1234
 - Frente de Caixa |
-    Usuário: caixa
+    Usuário: caixa |
     Senha: 1234
 
