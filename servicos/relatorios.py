@@ -5,9 +5,7 @@ class RelatoriosDatabase:
     def __init__(self, db_provider = None):
         self.db = db_provider or DatabaseManager()
 
-    # --- DASHBOARD ---
     def get_balanco_financeiro_mensal(self, ano: int, mes: int):
-        # Calcula custos (Lotes recebidos no mês) e faturamento (Vendas no mês)
         query = """
             SELECT
                 (SELECT COALESCE(SUM(l.quantidade * l.preco_compra), 0) 
@@ -22,7 +20,6 @@ class RelatoriosDatabase:
         return self.db.execute_select_one(query, (ano, mes, ano, mes))
 
     def get_historico_anual(self):
-        # Gera dados dos últimos 6 meses para o gráfico e lista
         hoje = datetime.date.today()
         historico = []
         
@@ -45,7 +42,6 @@ class RelatoriosDatabase:
             })
         return historico
 
-    # --- ESTOQUE (Lista completa) ---
     def get_todos_lotes(self):
         query = """
             SELECT p.cod_barras, l.cod_lote, p.nome as produto, f.nome_fornecedor, l.quantidade, l.data_validade
@@ -59,7 +55,6 @@ class RelatoriosDatabase:
     def deletar_lote(self, cod_lote):
         return self.db.execute_statement("DELETE FROM Lote WHERE cod_lote = %s", (cod_lote,))
 
-    # --- FUNCIONÁRIOS (Gestão Unificada) ---
     def get_funcionario_por_cpf(self, cpf):
         query = """
             SELECT f.nome_completo, f.cargo, s.nome_setor as setor, f.salario, f.cpf 
@@ -75,7 +70,6 @@ class RelatoriosDatabase:
         return self.db.execute_statement(query, params)
 
     def deletar_funcionario(self, cpf):
-        # Primeiro remove usuário de login se existir, depois o funcionário
         self.db.execute_statement("DELETE FROM Usuario WHERE cpf_funcionario = %s", (cpf,))
         return self.db.execute_statement("DELETE FROM Funcionario WHERE cpf = %s", (cpf,))
     
@@ -89,8 +83,6 @@ class RelatoriosDatabase:
         """
         return self.db.execute_select_all(query, (f'%{nome_setor}%',))
     
-
-# --- HISTÓRICO DE VENDAS (Lista completa) ---
     def get_historico_vendas_por_periodo(self, data_inicio=None, data_fim=None):
         """
         Se data_inicio/data_fim forem None retorna todas as vendas.
