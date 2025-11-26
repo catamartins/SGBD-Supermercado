@@ -4,7 +4,6 @@ async function filtrarVendas() {
     const tbody = document.getElementById('historico-body');
     tbody.innerHTML = '';
 
-    // validação simples
     if (!inicio && !fim) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Escolha pelo menos uma data.</td></tr>';
         return;

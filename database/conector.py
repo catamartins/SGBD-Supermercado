@@ -7,7 +7,6 @@ from typing import List, Dict, Any, Tuple
 class DatabaseManager:
     "Classe de Gerenciamento do database"
 
-    #Mudar nome de database, usuário e senha para o seu contexto depois de pegar do repositorio
     def __init__(self) -> None:
         self.conn = psycopg2.connect(
             dbname="supermercado",
@@ -18,13 +17,11 @@ class DatabaseManager:
         )
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
 
-    #Alguns prints para ajudar no debug
     def execute_statement(self, statement: str, params: tuple = ()) -> bool:
         """
         Executa INSERT, UPDATE, DELETE com suporte a parâmetros (%s)
         """
         try:
-            # AQUI ESTAVA O ERRO: Faltava passar 'params'
             self.cursor.execute(statement, params) 
             self.conn.commit()
         except Exception as e:
@@ -43,7 +40,6 @@ class DatabaseManager:
     def execute_select_one(self, query: str, params: tuple = ()):
         "Usado para SELECT com apenas uma linha de resposta, aceitando parâmetros"
         
-        # O self.cursor.execute deve receber a query E os parâmetros
         self.cursor.execute(query, params) 
         
         query_result = self.cursor.fetchone()

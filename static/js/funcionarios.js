@@ -1,4 +1,3 @@
-// Como os selects não têm ID no seu HTML, pegamos pela ordem
 const inputs = {
     nome: document.getElementById('nome_funcionario'),
     cpf: document.getElementById('cpf_funcionario'),
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function preencherSelects() {
-    // 1. LISTA RESTRITA PARA O FILTRO (O que você pediu)
     const filtroSetor = document.getElementById('filtro-setor');
     const setoresFiltro = ["Açougue","Padaria","Frente de Loja","Financeiro"];
 
@@ -21,13 +19,12 @@ function preencherSelects() {
         filtroSetor.innerHTML = '<option value="">Filtrar por Setor</option>';
         setoresFiltro.forEach(nome => {
             const opt = document.createElement('option');
-            opt.value = nome; // O Backend buscará pelo texto ou você terá que adaptar se buscar por ID
+            opt.value = nome; 
             opt.innerText = nome;
             filtroSetor.appendChild(opt);
         });
     }
 
-    // 2. LISTA COMPLETA PARA O CADASTRO (IDs do Banco)
     const setoresBanco = [
         {id: 1, nome: "Administração Geral"}, 
         {id: 2, nome: "Açougue"}, 
@@ -44,7 +41,6 @@ function preencherSelects() {
         });
     }
 
-    // Cargos
     const cargos = ["Operador de Caixa", "Gerente", "Açougueiro", "Diretor Geral", "Diretor Financeiro"];
     if(inputs.cargo) {
         cargos.forEach(c => {
@@ -54,7 +50,6 @@ function preencherSelects() {
         });
     }
 
-    // Gênero
     if(inputs.genero) {
         ["M", "F"].forEach(g => {
             const opt = document.createElement('option');
@@ -90,17 +85,14 @@ function toggleFilters() {
     const cpfInput = document.getElementById('busca-cpf');
     const setorSelect = document.getElementById('filtro-setor');
     
-    // Se o CPF está preenchido, desativa o filtro por setor
     if (cpfInput.value.trim() !== '') {
         setorSelect.disabled = true;
-        setorSelect.value = ""; // Limpa o valor do setor ao focar no CPF
+        setorSelect.value = "";
     } 
-    // Se o CPF está vazio, e o Setor está selecionado, desativa o campo CPF
     else if (setorSelect.value.trim() !== '') {
         cpfInput.disabled = true;
-        cpfInput.value = ""; // Limpa o valor do CPF ao focar no setor
+        cpfInput.value = ""; 
     }
-    // Se ambos estão vazios, reativa ambos
     else {
         cpfInput.disabled = false;
         setorSelect.disabled = false;
@@ -108,8 +100,6 @@ function toggleFilters() {
 }
 
 async function filtrarFuncionarios() {
-    // 1. Captura ambos os valores de filtro (CPF e Setor)
-    // O valor deve ser lido diretamente, pois 'toggleFilters' já garante que um esteja vazio ou desativado.
     const cpf = document.getElementById('busca-cpf').value.trim(); 
     const setor = document.getElementById('filtro-setor').value.trim();
     
@@ -119,7 +109,6 @@ async function filtrarFuncionarios() {
     let apiUrl = 'http://127.0.0.1:8000/funcionario';
     let isSetorSearch = false; 
     
-    // A lógica de prioridade permanece:
     if (cpf) {
         apiUrl += `?cpf=${cpf}`;
     } else if (setor) {
@@ -137,19 +126,14 @@ async function filtrarFuncionarios() {
         if (res.ok) {
             let funcionariosParaRenderizar = [];
             
-            // 3. Trata a resposta: A API retorna um objeto único ou uma lista?
             if (isSetorSearch) {
-                // Busca por setor retorna { "funcionarios": [...] }
                 funcionariosParaRenderizar = data.funcionarios || [];
             } else {
-                // Busca por CPF retorna { "dados_contratuais": {...} }
                 funcionariosParaRenderizar = [data.dados_contratuais];
             }
             
-            // 4. Renderiza os resultados (LOOP UNIFICADO)
             if (funcionariosParaRenderizar.length > 0) {
                 funcionariosParaRenderizar.forEach(f => {
-                    // Garantindo que 'salario' seja um número (se for retornado como string)
                     const salarioFormatado = (typeof f.salario === 'number' ? f.salario : parseFloat(f.salario)).toFixed(2);
                     
                     tbody.innerHTML += `
@@ -169,7 +153,6 @@ async function filtrarFuncionarios() {
             }
 
         } else {
-            // Trata 404/400
             tbody.innerHTML = `<tr><td colspan="5" align="center">${data.erro || data.mensagem || 'Não encontrado'}</td></tr>`;
         }
     } catch (e) { 

@@ -3,7 +3,6 @@ from servicos.estoque import EstoqueDatabase
 
 estoque_bp = Blueprint('estoque', __name__)
 
-# --- FORNECEDOR ---
 @estoque_bp.route('/fornecedores', methods=['GET'])
 def get_fornecedores():
     db = EstoqueDatabase()
@@ -20,10 +19,8 @@ def criar_fornecedor():
         return jsonify({"mensagem": "Fornecedor criado!"}), 201
     return jsonify({"erro": "Erro ao criar fornecedor."}), 500
 
-#Pra mostrar que não é possível deletar Fornecedor
 @estoque_bp.route('/fornecedor', methods=['DELETE'])
 def deletar_fornecedor():
-    # Ex: /fornecedor?cod_fornecedor=10
     cod = request.args.get('cod_fornecedor')
     if not cod:
         return jsonify({"erro": "cod_fornecedor é obrigatório."}), 400
@@ -33,7 +30,6 @@ def deletar_fornecedor():
     else:
         return jsonify({"erro": "Erro ao remover. Verifique se existem LOTES vinculados a este fornecedor."}), 500
 
-# --- LOTE ---
 @estoque_bp.route('/lote', methods=['POST'])
 def criar_lote():
     dados = request.get_json()

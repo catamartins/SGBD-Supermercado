@@ -1,51 +1,45 @@
-/* Reset e Fonte */
 * { margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* --- LAYOUT PRINCIPAL (Lado a Lado) --- */
 .app-container {
     display: flex;       
     min-height: 100vh;
     min-width: 100vh;
 }
 
-/* --- MENU LATERAL --- */
 .sidebar {
-    width: 260px;        /* Largura fixa */
-    min-width: 260px;    /* Garante que não encolhe */
+    width: 260px; 
+    min-width: 260px; 
     background-color: #3d70b2;
     color: white;
     display: flex;
     flex-direction: column;
-    height: 100vh;       /* Altura total */
+    height: 100vh; 
     box-shadow: 4px 0 10px rgba(0,0,0,0.1);
     z-index: 10;
-    overflow-y: auto;    /* Permite rolar SE o menu for maior que a tela */
+    overflow-y: auto;  
     position: fixed;
 }
 
-/* Logo Arrumada */
 .sidebar .logo {
     padding: 20px;
     text-align: center;
-    background-color: #2a63af; /* Fundo levemente mais escuro */
-}
+    background-color: #2a63af; 
 
 .sidebar .logo img {
-    max-width: 160px;    /* Tamanho máximo controlado */
+    max-width: 160px;
     height: auto;
     display: block;
-    margin: 0 auto;      /* Centraliza */
+    margin: 0 auto;
 }
 
-/* Links do Menu */
 .sidebar .nav-links {
     list-style: none;
     padding: 15px;
-    flex: 1;             /* Ocupa o espaço disponível */
+    flex: 1; 
 }
 
 .sidebar .nav-links li { margin-bottom: 5px; }
@@ -74,16 +68,14 @@
     fill: currentColor;
 }
 
-/* --- CONTEÚDO PRINCIPAL --- */
 .content {
-    flex-grow: 1;        /* Ocupa o resto da tela */
+    flex-grow: 1;
     padding: 30px;
-    overflow-y: auto;    /* Rolagem apenas aqui dentro */
+    overflow-y: auto; 
     background-color: #f8fafc;
     height: 100vh;
 }
 
-/* --- CARDS E ELEMENTOS --- */
 .titulo-pagina { font-size: 26px; color: #333; margin-bottom: 25px; font-weight: bold; }
 
 .cards {
@@ -138,7 +130,6 @@
     padding: 5px;
 }
 
-/* Tabelas e Inputs */
 .tabela {
     width: 100%;
     border-collapse: collapse;

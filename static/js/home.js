@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function carregarDashboard() {
     try {
-        // 1. Mês Atual
         const resAtual = await fetch('http://127.0.0.1:8000/relatorios/balanco_financeiro');
         const dados = await resAtual.json();
         const fin = dados.analise_financeira;
@@ -17,7 +16,6 @@ async function carregarDashboard() {
         elLucro.innerText = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
         elLucro.style.color = lucro >= 0 ? '#27ae60' : '#e74c3c';
 
-        // 2. Histórico e Gráfico
         const resHist = await fetch('http://127.0.0.1:8000/relatorios/historico_anual');
         const historico = await resHist.json();
         
@@ -27,7 +25,6 @@ async function carregarDashboard() {
 }
 
 function atualizarListaEGrafico(historico) {
-    // Lista na tela (se houver elemento lista-historico no HTML)
     const lista = document.getElementById('lista-historico');
     if(lista) {
         lista.innerHTML = '';
@@ -39,7 +36,6 @@ function atualizarListaEGrafico(historico) {
         });
     }
 
-    // Gráfico
     const ctx = document.getElementById('salesChart');
     if(ctx) {
         const meses = historico.map(h => h.mes).reverse();

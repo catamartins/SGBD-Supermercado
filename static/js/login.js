@@ -1,15 +1,12 @@
-// Foca no campo de login ao abrir
 document.addEventListener('DOMContentLoaded', () => {
     const inputLogin = document.getElementById('login');
     if (inputLogin) inputLogin.focus();
 });
 
 async function fazerLogin() {
-    // Pega os valores dos inputs (ajuste os IDs conforme seu index.html)
-    // Supondo que no index.html existam inputs com id="login" e id="senha"
     const loginInput = document.getElementById('login');
     const senhaInput = document.getElementById('senha');
-    const feedback = document.getElementById('feedback-login'); // Um <p> para erros
+    const feedback = document.getElementById('feedback-login');
 
     if (!loginInput || !senhaInput) {
         console.error("Inputs de login/senha não encontrados no HTML.");
@@ -34,10 +31,8 @@ async function fazerLogin() {
         const data = await res.json();
 
         if (res.ok) {
-            // Salva o usuário no navegador (Sessão)
             localStorage.setItem('usuario', JSON.stringify(data.usuario));
             
-            // Redireciona com base no cargo (Regra de Negócio)
             const cargo = data.usuario.cargo;
             
             if (cargo === 'Operador de Caixa') {
@@ -45,7 +40,6 @@ async function fazerLogin() {
             } else if (cargo === 'Açougueiro' || cargo === 'Repositor') {
                 window.location.href = '/pagina/estoque';
             } else {
-                // Gerentes e Diretores vão para o Dashboard (Home)
                 window.location.href = '/pagina/home'; 
             }
         } else {
@@ -58,7 +52,6 @@ async function fazerLogin() {
     }
 }
 
-// Atalho Enter para logar
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') fazerLogin();
 });

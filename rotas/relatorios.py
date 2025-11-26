@@ -37,7 +37,6 @@ def delete_lote():
         return jsonify({"msg": "Lote removido"}), 200
     return jsonify({"erro": "Erro ao remover"}), 500
 
-# --- ROTAS DE FUNCIONÁRIO ---
 @relatorios_bp.route('/funcionario', methods=['GET', 'POST', 'DELETE'])
 def gerir_funcionario():
     db = RelatoriosDatabase()
@@ -46,7 +45,6 @@ def gerir_funcionario():
         cpf = request.args.get('cpf')
         setor = request.args.get('setor')
         if cpf:
-            # Caso 1: Busca por CPF
             func = db.get_funcionario_por_cpf(cpf)
             if func:
                 func['salario'] = float(func['salario'])
@@ -54,10 +52,8 @@ def gerir_funcionario():
             return jsonify({"erro": "Funcionário não encontrado"}), 404
         
         elif setor:
-            # Caso 2: Busca por Setor
             funcs = db.get_funcionarios_por_setor(setor)
             if funcs:
-                # Converte o salário para float em todos os resultados
                 for func in funcs:
                     func['salario'] = float(func['salario'])
                 return jsonify({"funcionarios": funcs})
@@ -79,10 +75,9 @@ def gerir_funcionario():
 @relatorios_bp.route('/relatorios/historico_vendas', methods=['GET'])
 def get_historico_vendas():
     db = RelatoriosDatabase()
-    inicio = request.args.get('inicio')  # 'YYYY-MM-DD'
-    fim = request.args.get('fim')        # 'YYYY-MM-DD'
+    inicio = request.args.get('inicio') 
+    fim = request.args.get('fim')        
     resultados = db.get_historico_vendas_por_periodo(inicio, fim)
-    # converte formatos numéricos/datas se necessário antes de jsonify
     for r in resultados:
         r['valor_total'] = float(r['valor_total'])
     return jsonify(resultados)

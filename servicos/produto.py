@@ -3,7 +3,6 @@ from database.conector import DatabaseManager
 class ProdutoDatabase:
 
     def __init__(self, db_provider = None):
-        # Avoid creating a DB connection at import time by lazy-initializing
         self.db = db_provider or DatabaseManager()
 
     def get_produto_by_cod_barras(self, cod_barras):
@@ -31,7 +30,6 @@ class ProdutoDatabase:
             ORDER BY 
                 l.data_validade ASC;
         """
-        # Passamos a variável 'dias' como tupla de parâmetros
         return self.db.execute_select_all(query, (dias,))
     
     def get_produtos_em_falta(self):
@@ -59,11 +57,9 @@ class ProdutoDatabase:
             ORDER BY 
                 estoque_atual ASC;
         """
-        # Esta consulta não tem parâmetros dinâmicos, então passamos uma tupla vazia.
         return self.db.execute_select_all(query, ())
     
 
-    # teste stefanie 
     def get_produtos_em_estoque_por_descricao(self, descricao):
         """
         Busca por nome do produto e retorna todos os produtos com aqueles

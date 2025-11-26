@@ -9,7 +9,6 @@ class AuthDatabase:
         Verifica login e senha. 
         Se correto, retorna os dados do funcionário (Nome e Cargo).
         """
-        # Fazemos um JOIN para pegar o cargo direto da tabela Funcionario
         query = """
             SELECT 
                 u.login,

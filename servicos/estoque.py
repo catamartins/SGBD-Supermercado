@@ -41,8 +41,6 @@ class EstoqueDatabase:
             dados['data_validade']
         )
         return self.db.execute_statement(query, params)
-    
-        # --- DELETAR ---#Pra mostrar que não é possível deletar Fornecedor
 
     def deletar_fornecedor(self, cod_fornecedor: int):
         """

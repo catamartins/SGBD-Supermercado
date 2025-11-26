@@ -16,7 +16,6 @@ def get_produto_por_codigo():
 
     if produto:
         response_data = {
-            # Use .get() para acessar as chaves do dicionário retornado pelo DatabaseManager
             "nome": produto.get('nome'), 
             "preco_venda": float(produto.get('preco_venda')),
             "tipo_produto": produto.get('tipo_produto'),
@@ -28,7 +27,6 @@ def get_produto_por_codigo():
     
 @produto_bp.route('/produto/validade', methods=['GET'])
 def get_produtos_validade():
-    # Pega o número de dias do parâmetro de query, ou usa 30 como padrão
     dias_str = request.args.get('dias', '30') 
     
     try:
@@ -40,11 +38,9 @@ def get_produtos_validade():
     
     produto_db = ProdutoDatabase()
     
-    # Chama o novo método do serviço
     produtos = produto_db.get_produtos_proxima_validade(dias)
 
     if produtos:
-        # A rota retorna uma lista de dicionários
         return jsonify(produtos), 200
     else:
         return jsonify({"mensagem": f"Nenhum produto vence nos próximos {dias} dias."}), 200
@@ -55,18 +51,15 @@ def get_produtos_em_falta():
     
     produto_db = ProdutoDatabase()
     
-    # Chama o novo método do serviço
     produtos = produto_db.get_produtos_em_falta()
 
     if produtos:
-        # A rota retorna a lista de dicionários
         return jsonify(produtos), 200
     else:
         return jsonify({"mensagem": "Nenhum produto está abaixo do estoque mínimo definido."}), 200
 
 
 
-# --- Quantidade de unidades de um produto em estoque ---
 @produto_bp.route('/produto/em_estoque', methods=['GET'])
 def get_produtos_em_estoque():
 
@@ -76,14 +69,12 @@ def get_produtos_em_estoque():
     categoria = request.args.get('categoria')
     
     if descricao:
-        # Busca por descrição
         produtos = produto_db.get_produtos_em_estoque_por_descricao(descricao)
         if produtos:
             return jsonify(produtos), 200
         return jsonify({"erro": "Nenhum produto encontrado com essa descrição."}), 404
 
     elif categoria:
-        # Busca por categoria
         produtos = produto_db.get_produtos_em_estoque_por_categoria(categoria)
         if produtos:
             return jsonify(produtos), 200
@@ -103,7 +94,6 @@ def get_categorias():
 def criar_produto():
     dados = request.get_json()
     
-    # Validação básica
     if not all(k in dados for k in ['cod_barras', 'nome', 'tipo_produto', 'preco_venda', 'estoque_minimo']):
         return jsonify({"erro": "Campos obrigatórios faltando."}), 400
     

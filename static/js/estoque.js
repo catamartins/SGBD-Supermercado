@@ -1,13 +1,11 @@
 
 document.addEventListener('DOMContentLoaded', function() {
-    // carregarLotes();
     carregarFornecedores();
     carregarCategorias();
     limparFormularios();
 })
 
 function limparFormularios() {
-    // Limpa formulário de lote
     document.getElementById('lote-prod').value = '';
     document.getElementById('lote-forn').value = '';
     document.getElementById('lote-qtd').value = '';
@@ -15,14 +13,13 @@ function limparFormularios() {
     document.getElementById('lote-data').value = '';
     document.getElementById('lote-val').value = '';
     
-    // Limpa formulário de fornecedor
     document.getElementById('forn-nome').value = '';
     document.getElementById('forn-cod').value = '';
     document.getElementById('forn-data').value = '';
 }
 
 async function carregarLotes() {
-    const res = await fetch('http://127.0.0.1:8000/estoque/lotes'); // Nova rota
+    const res = await fetch('http://127.0.0.1:8000/estoque/lotes');
     const lotes = await res.json();
     const tbody = document.querySelector('.tabela tbody');
     tbody.innerHTML = '';
@@ -43,9 +40,7 @@ async function carregarLotes() {
     });
 }
 
-// CADASTRAR LOTE
 async function cadastrarLote() {
-    // 1. Coleta os valores do DOM (como strings)
     const cod_produto_str = document.getElementById('lote-prod').value;
     const cod_fornecedor_str = document.getElementById('lote-forn').value;
     const quantidade_str = document.getElementById('lote-qtd').value;
@@ -53,23 +48,19 @@ async function cadastrarLote() {
     const data_recebimento_str = document.getElementById('lote-data').value;
     const data_validade_str = document.getElementById('lote-val').value;
     
-    // 2. Validação de Preenchimento: Checa se os campos críticos não estão vazios
     if (
         !cod_produto_str || !cod_fornecedor_str || !quantidade_str || 
         !preco_compra_str || !data_recebimento_str
-        // data_validade pode ser nula, dependendo da sua DDL, por isso não a validamos aqui
     ) {
         return alert("Por favor, preencha todos os campos obrigatórios: Produto, Fornecedor, Quantidade, Preço e Data de Recebimento.");
     }
 
-    // 3. Converte preço usando a nova função
     const preco_compra = parsePreco(preco_compra_str);
     if (preco_compra === null) {
         return alert("Preço de Compra inválido. Use formato: 10.50 ou 10,50");
     }
     
     
-    // 4. Monta o Payload, aplicando as conversões *depois* de saber que as strings não são vazias
     const payload = {
         cod_produto: cod_produto_str,
         cod_fornecedor: parseInt(cod_fornecedor_str),
@@ -79,12 +70,10 @@ async function cadastrarLote() {
         data_validade: data_validade_str
     };
 
-    // 5. Checagem de Erro de Conversão (garante que não enviamos NaN)
     if (isNaN(payload.cod_fornecedor) || isNaN(payload.quantidade) || isNaN(payload.preco_compra)) {
         return alert("Os campos ID Fornecedor, Quantidade e Preço de Compra devem ser números válidos.");
     }
     
-    // 6. Chamada API
     const res = await fetch('http://127.0.0.1:8000/lote', {
         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
     });
@@ -94,7 +83,6 @@ async function cadastrarLote() {
         limparFormularios();
         carregarLotes(); 
     } else { 
-        // A mensagem de erro sugere o erro de FK
         alert("Erro ao registrar entrada. Verifique se o Código do Produto e o ID do Fornecedor existem no sistema."); 
     }
 }
@@ -106,7 +94,6 @@ async function excluirLote(id) {
     else alert("Erro ao excluir.");
 }
 
-// FORNECEDOR
 async function cadastrarFornecedor() {
     const nome = document.getElementById('forn-nome').value;
     const codigo = document.getElementById('forn-cod').value;
@@ -144,7 +131,6 @@ async function carregarFornecedores() {
 }
 
 
-// EXCLUIR
 async function excluirLote(id) {
     if(!confirm("Confirma a exclusão deste lote?")) return;
     
@@ -155,7 +141,6 @@ async function excluirLote(id) {
 }
 
 function parsePreco(valor) {
-    // Remove espaços e substitui vírgula por ponto
     const normalizado = valor.trim().replace(',', '.');
     const preco = parseFloat(normalizado);
     
@@ -163,15 +148,11 @@ function parsePreco(valor) {
         return null;
     }
     
-    // Retorna com 2 casas decimais
     return Math.round(preco * 100) / 100;
 }
 
 
-// BUSCA POR PRODUTO EM ESTOQUE
 async function filtrarProdutosEmEstoque() {
-    // 1. Captura ambos os valores de filtro (Descricao e Categoria)
-    // O valor deve ser lido diretamente, pois 'toggleFilters' já garante que um esteja vazio ou desativado.
     const descricao = document.getElementById('busca-descricao').value.trim(); 
     const categoria = document.getElementById('filtro-categoria').value.trim();
     
@@ -201,7 +182,6 @@ async function filtrarProdutosEmEstoque() {
         
         if (res.ok) {
             data.forEach(produto => {
-                // Determina o status baseado na quantidade em estoque vs. estoque mínimo
                 let status = '';
                 let statusColor = '';
                 const qtd = produto.qtd_em_estoque || 0;
@@ -209,13 +189,13 @@ async function filtrarProdutosEmEstoque() {
                 
                 if (qtd < minimo) {
                     status = 'Crítico';
-                    statusColor = '#ff4444'; // Vermelho
+                    statusColor = '#ff4444'; 
                 } else if (qtd <= minimo * 2) {
                     status = 'Baixo';
-                    statusColor = '#ffaa00'; // Amarelo
+                    statusColor = '#ffaa00'; 
                 } else {
                     status = 'Normal';
-                    statusColor = '#44aa44'; // Verde
+                    statusColor = '#44aa44';
                 }
                 
                 tbody.innerHTML += `
@@ -243,17 +223,14 @@ function toggleFilters() {
     const descricaoInput = document.getElementById('busca-descricao');
     const catogoriaSelect = document.getElementById('filtro-categoria');
     
-    // Se a descricao está preenchida, desativa o filtro por categoria
     if (descricaoInput.value.trim() !== '') {
         catogoriaSelect.disabled = true;
-        catogoriaSelect.value = ""; // Limpa o valor da categoria ao focar na descricao
+        catogoriaSelect.value = ""; 
     } 
-    // Se a descricao está vazia, e a categoria está selecionada, desativa o campo descricao
     else if (catogoriaSelect.value.trim() !== '') {
         descricaoInput.disabled = true;
-        descricaoInput.value = ""; // Limpa o valor da descricao ao focar na categoria
+        descricaoInput.value = ""; 
     }
-    // Se ambos estão vazios, reativa ambos
     else {
         descricaoInput.disabled = false;
         catogoriaSelect.disabled = false;
@@ -286,12 +263,10 @@ async function cadastrarProduto() {
     const preco_venda_str = document.getElementById('prod-preco').value.trim();
     const estoque_minimo_str = document.getElementById('prod-estoque-min').value.trim();
     
-    // Validação
     if (!cod_barras || !nome || !tipo_produto || !preco_venda_str || !estoque_minimo_str) {
         return alert("Preencha todos os campos obrigatórios!");
     }
     
-    // Converte preço usando a função parsePreco
     const preco_venda = parsePreco(preco_venda_str);
     if (preco_venda === null) {
         return alert("Preço de venda inválido. Use formato: 10.50 ou 10,50");
@@ -302,7 +277,6 @@ async function cadastrarProduto() {
         return alert("Estoque mínimo deve ser um número válido.");
     }
     
-    // Monta payload
     const payload = {
         cod_barras: cod_barras,
         nome: nome,
@@ -311,7 +285,6 @@ async function cadastrarProduto() {
         estoque_minimo: estoque_minimo
     };
     
-    // Chamada API
     try {
         const res = await fetch('http://127.0.0.1:8000/produto', {
             method: 'POST',
@@ -321,13 +294,12 @@ async function cadastrarProduto() {
         
         if (res.ok) {
             alert("Produto cadastrado com sucesso!");
-            // Limpa os campos
             document.getElementById('prod-barras').value = '';
             document.getElementById('prod-nome').value = '';
             document.getElementById('prod-categoria').value = '';
             document.getElementById('prod-preco').value = '';
             document.getElementById('prod-estoque-min').value = '';
-            carregarCategorias(); // Recarrega categorias para incluir a nova
+            carregarCategorias(); 
         } else {
             const erro = await res.json();
             alert(`Erro: ${erro.erro || erro.mensagem || 'Erro ao cadastrar produto.'}`);

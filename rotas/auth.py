@@ -14,7 +14,6 @@ def login():
     usuario = db.autenticar_usuario(dados['login'], dados['senha'])
 
     if usuario:
-        # Retorna sucesso e os dados do usuário para o frontend salvar
         return jsonify({
             "mensagem": "Autenticado com sucesso",
             "usuario": {
