@@ -16,13 +16,13 @@
 8. Pesquise no seu navegador: http://127.0.0.1:8000/
 
 9. Faça login a partir das visões:
-- Diretoria geral
+- Diretoria geral |
     Usuário: diretor
     Senha: 1234
-- Financeiro
+- Financeiro |
     Usuário: financeiro
     Senha: 1234
-- Frente de Caixa
+- Frente de Caixa |
     Usuário: caixa
     Senha: 1234
 
